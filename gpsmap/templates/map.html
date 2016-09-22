@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset=utf-8 />
+      <title>Transantiago GPS</title>
+      <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+      <!--js script libraries-->
+      <script src='https://api.mapbox.com/mapbox.js/v2.2.2/mapbox.js'></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+      <!--CSS libraries-->
+      <link href='https://api.mapbox.com/mapbox.js/v2.2.2/mapbox.css' rel='stylesheet' />
+      <style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+      </style>
+  </head>
+  <body>
+
+    <div id='map'></div>
+    <script>
+
+      //util functions
+      
+      //get the map
+      L.mapbox.accessToken = 'pk.eyJ1IjoidHJhbnNhcHAiLCJhIjoiY2lzbjl6MDQzMDRkNzJxbXhyZWZ1aTlocCJ9.-xsBhulirrT0nMom_Ay9Og';
+
+      //centering in Santiago
+      var map = L.mapbox.map('map', 'cephei.nhfb48an')
+          .setView([-33.446209, -70.660803], 13); 
+      var points = L.layerGroup([]);
+
+      askMarkersOnMap();
+
+      function askMarkersOnMap()
+      {
+        $.ajax({
+          url: "/map/busLocations",// ask for current poses
+          success: function(data){
+            drawMarkersOnMap(data);
+          }
+        });
+
+        //this does the update in the map
+        setTimeout(askMarkersOnMap, 60000);
+      };
+
+      function drawMarkersOnMap(data)
+      {
+        var markers = [];
+        var markerOptions = {
+            icon: L.mapbox.marker.icon({
+                'marker-size': 'small',
+                'marker-symbol': 'bus',
+                'marker-color': '#fa0'
+            })
+        };
+
+        $.each(data, function(i, v){
+             var latLng = L.latLng(v.latitud, v.longitud);
+             var marker = L.marker(latLng, markerOptions);
+             marker.bindPopup("<p>" + v.servicio + "<br />" + v.patente + "<br />" + v.tiempo + "</p>");
+             markers.push(marker);
+        });
+        
+        //removes prevevius markers
+        map.removeLayer(points);
+	points = L.layerGroup(markers);
+        map.addLayer(points);
+      };
+    </script>
+  </body>
+</html>
+

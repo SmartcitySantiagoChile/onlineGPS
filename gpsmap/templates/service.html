@@ -1,0 +1,160 @@
+<!doctype html>
+{% load static %}
+<html class="no-js" lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Servicios online</title>
+        <meta name="description" content="Servicios en vivo">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+        <!-- Place favicon.ico in the root directory -->
+
+        <link rel="stylesheet" href="{% static "css/normalize.css" %}">
+        <link rel="stylesheet" href="{% static "css/main.css" %}">
+        <script src="{% static "js/vendor/modernizr-2.8.3.min.js" %}"></script>
+        
+        <!-- leaflet -->
+        <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+        
+        <!-- bootstrap -->
+        <link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}"/>
+        <link rel="stylesheet" href="{% static "css/bootstrap-theme.min.css" %}" />
+        <style>
+        html, body, .container-fluid {
+             height: 100%;
+        }
+        </style>
+    </head>
+    <body>
+        <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <!-- Add your site or application content here -->
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <HR>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">                    
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Buses Online</h3>
+                        </div>
+                        <div class="panel-body">
+                            <form class="form-inline">
+                            <input id="serviceCode" type="text" class="form-control" placeholder="Ingresar servicio aquí...">
+                            <label class="radio-inline">
+                                <input type="radio" name="direction" id="optionsRadios1" value="R" checked>
+                                REGRESO
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="direction" id="optionsRadios2" value="I">
+                                IDA
+                            </label>
+                            <input type="button" id="seeBuses" value="Visualizar buses" class="btn btn-default" /> 
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="height: 100%">
+                <div class="col-md-12" style="height: 100%;min-height: 100%">
+                    <div class="panel panel-default" style="height: 100%;min-height: 100%">
+                        <div class="panel-body" style="height: 100%;min-height: 100%">
+                            <div id="mapid" style="height: 100%;min-height: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script src="{% static "js/vendor/jquery-1.12.0.min.js" %}"></script>
+        <script src="{% static "js/plugins.js" %}"></script>
+        <script src="{% static "js/main.js" %}"></script>
+        <script src="{% static "js/bootstrap.min.js" %}"></script>    
+        <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+        <!--<script src="js/Leaflet.textpath.js"></script> -->
+        <script src="{% static "js/Leaflet.DTPM.js" %}"></script>
+
+        <script>
+            $(document).ready(function() {
+
+                /**
+                 * SET MAP
+                 */
+                var beauchefLocation = L.latLng(-33.457910, -70.663869);
+                var map = L.map('mapid', {editable: true}).setView(beauchefLocation, 15);
+                DTPM.setLayerControl(map);
+
+                var points = L.layerGroup([]);
+                var busStopsLayer = L.layerGroup([]);
+                var serviceRoute = L.featureGroup([]);
+                points.addTo(map);
+                busStopsLayer.addTo(map);
+                serviceRoute.addTo(map);
+
+                var overlays = {
+                    "buses": points,
+                    "paraderos": busStopsLayer,
+                    "Ruta": serviceRoute
+                };
+                L.control.layers({}, overlays).addTo(map);
+
+                /**
+                 * LOAD DATA
+                 */
+                DTPM.loadData(function(){
+ 
+                    function drawMarkersOnMap(data, service, direction) {
+
+                        // draw bus stops related to service 
+                        busStopsLayer = DTPM.drawStopsForService(busStopsLayer, service, direction);
+
+                        //removes prevevius buses
+                        points.clearLayers();
+                        var markerOptions = {
+                            icon: DTPM.getBusIcon(service)
+                        };
+
+                        $.each(data, function(i, v){
+                            var latLng = L.latLng(v.latitud, v.longitud);
+                            var marker = L.marker(latLng, markerOptions);
+                            marker.bindPopup("<p>" + v.servicio + "<br />" + v.patente + "<br />" + v.tiempo + "</p>");
+                            points.addLayer(marker);
+                        });
+                    
+                        // draw route
+                        var routes = DTPM.getRoutes([service + direction]);
+                        serviceRoute = DTPM.drawRoutes(serviceRoute, routes);
+
+                        map.fitBounds(serviceRoute.getBounds());
+                    };
+                   
+                    // SET BUTTON ACTION
+                    var askBusesButton = $('#seeBuses');
+                    askBusesButton.click(function(){
+                        var serviceCode = $('#serviceCode').val();
+                        var direction = $('input[name=direction]:checked').val();
+			
+                        $.ajax({
+                            url: "/map/getService/" + serviceCode + "/" + direction,
+                            success: function(data){
+                                drawMarkersOnMap(data, serviceCode, direction);
+                            }
+                        });
+                    
+                        //this does the update in the map
+                        setTimeout(function() {
+                            askBusesButton.trigger('click');
+                        }, 60000);
+                    });
+                }, "{% static ""%}");
+            });
+        </script>
+    </body>
+</html>
