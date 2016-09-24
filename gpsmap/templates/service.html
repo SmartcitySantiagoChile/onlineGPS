@@ -124,7 +124,29 @@
                         $.each(data, function(i, v){
                             var latLng = L.latLng(v.latitud, v.longitud);
                             var marker = L.marker(latLng, markerOptions);
-                            marker.bindPopup("<p>" + v.servicio + "<br />" + v.patente + "<br />" + v.tiempo + "</p>");
+
+                            var paramServicio = "Servicio: " + v.servicio;
+                            var paramServicioCode = "ServicioCodigo: " + v.servicioCodigo;
+                            var paramOperador = "Operador: " + v.operador;
+                            var paramDistEnRuta = "Dist. en ruta: " + v.distEnRuta;
+                            var paramDistARuta = "Dist a ruta: " + v.distARuta;
+                            var paramVelInst = "Vel. instantánea: " + v.velocidadInstantanea;
+                            var paramVel2GPS = "Vel. 2 gps: " + v.velocidad2GPS;
+                            var paramVel4GPS = "Vel. 4 gps: " + v.velocidad4GPS;
+                            var paramTiempo = "Tiempo: " + v.tiempo;
+                            var params = [];
+                            params.push(paramServicio);
+                            params.push(paramServicioCode);
+                            params.push(paramOperador);
+                            params.push(paramDistEnRuta);
+                            params.push(paramDistARuta);
+                            params.push(paramVelInst);
+                            params.push(paramVel2GPS);
+                            params.push(paramVel4GPS);
+                            params.push(paramTiempo);
+                            params = params.join("<br />");
+
+                            marker.bindPopup("<p>" + params + "</p>");
                             points.addLayer(marker);
                         });
                     
@@ -142,7 +164,7 @@
                         var direction = $('input[name=direction]:checked').val();
 			
                         $.ajax({
-                            url: "/map/getService/" + serviceCode + "/" + direction,
+                            url: "getService/" + serviceCode + "/" + direction,
                             success: function(data){
                                 drawMarkersOnMap(data, serviceCode, direction);
                             }
