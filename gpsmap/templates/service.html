@@ -82,7 +82,9 @@
         <script src="{% static "js/Leaflet.DTPM.js" %}"></script>
 
         <script>
-            $(document).ready(function() {
+            $(document).ready(function() { 
+                // to make fitBounds only the first time service is loaded
+                var oldService = '';
 
                 /**
                  * SET MAP
@@ -155,8 +157,13 @@
                         // draw route
                         var routes = DTPM.getRoutes([service + direction]);
                         serviceRoute = DTPM.drawRoutes(serviceRoute, routes);
+                        
+                        if (oldService != service) {
+                            oldService = service;
+                            map.fitBounds(serviceRoute.getBounds());
+                        }
 
-                        map.fitBounds(serviceRoute.getBounds());
+                        console.log('Map updated');
                     };
                    
                     // SET BUTTON ACTION
