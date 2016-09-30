@@ -125,8 +125,9 @@
                             var latLng = L.latLng(v.latitud, v.longitud);
                             var marker = L.marker(latLng, markerOptions);
 
+                            var paramPatente = "Patente: " + v.patente;
                             var paramServicio = "Servicio: " + v.servicio;
-                            var paramServicioCode = "ServicioCodigo: " + v.servicioCodigo;
+                            var paramServicioCode = "Codigo de servicio: " + v.servicioCodigo;
                             var paramOperador = "Operador: " + v.operador;
                             var paramDistEnRuta = "Dist. en ruta: " + v.distEnRuta;
                             var paramDistARuta = "Dist a ruta: " + v.distARuta;
@@ -135,6 +136,7 @@
                             var paramVel4GPS = "Vel. 4 gps: " + v.velocidad4GPS;
                             var paramTiempo = "Tiempo: " + v.tiempo;
                             var params = [];
+                            params.push(paramPatente);
                             params.push(paramServicio);
                             params.push(paramServicioCode);
                             params.push(paramOperador);
