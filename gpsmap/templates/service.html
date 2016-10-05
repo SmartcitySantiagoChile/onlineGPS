@@ -40,13 +40,13 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12">                    
+                <div class="col-md-6">
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <h3 class="panel-title">Buses Online</h3>
                         </div>
                         <div class="panel-body">
-                            <form class="form-inline">
+                            <div class="form-inline">
                             <input id="serviceCode" type="text" class="form-control" placeholder="Ingresar servicio aquí...">
                             <label class="radio-inline">
                                 <input type="radio" name="direction" id="optionsRadios1" value="R" checked>
@@ -57,11 +57,31 @@
                                 IDA
                             </label>
                             <input type="button" id="seeBuses" value="Visualizar buses" class="btn btn-default" /> 
-                            </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Información de servicio</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-inline">
+                                <div class="form-group">
+                            	    <label class="control-label">Origen:</label>
+                            	    <p id="serviceOrigin" type="text" class="form-control-static">sd</p>
+                                </div>
+                                <div class="form-group">
+                            	    <label class="control-label">Destino:</label>
+                            	    <p id="serviceDestination" type="text" class="form-control-static">sd</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
             <div class="row" style="height: 100%">
                 <div class="col-md-12" style="height: 100%;min-height: 100%">
                     <div class="panel panel-default" style="height: 100%;min-height: 100%">
@@ -84,13 +104,13 @@
         <script>
             $(document).ready(function() { 
                 // to make fitBounds only the first time service is loaded
-                var oldService = '';
+                var oldService = "";
 
                 /**
                  * SET MAP
                  */
                 var beauchefLocation = L.latLng(-33.457910, -70.663869);
-                var map = L.map('mapid', {editable: true}).setView(beauchefLocation, 15);
+                var map = L.map("mapid", {editable: true}).setView(beauchefLocation, 15);
                 DTPM.setLayerControl(map);
 
                 var points = L.layerGroup([]);
@@ -163,14 +183,15 @@
                             map.fitBounds(serviceRoute.getBounds());
                         }
 
-                        console.log('Map updated');
+                        console.log("Map updated");
                     };
-                   
+                    
+                    var timer = 0;
                     // SET BUTTON ACTION
-                    var askBusesButton = $('#seeBuses');
+                    var askBusesButton = $("#seeBuses");
                     askBusesButton.click(function(){
-                        var serviceCode = $('#serviceCode').val();
-                        var direction = $('input[name=direction]:checked').val();
+                        var serviceCode = $("#serviceCode").val();
+                        var direction = $("input[name=direction]:checked").val();
 			
                         $.ajax({
                             url: "getService/" + serviceCode + "/" + direction,
@@ -178,11 +199,40 @@
                                 drawMarkersOnMap(data, serviceCode, direction);
                             }
                         });
-                    
+                        
+                        var serviceInfo = DTPM.data.service[serviceCode];
+                        var origin = serviceInfo.origin;
+                        var destination = serviceInfo.destiny;
+                        if (direction == "I") {
+                            $("#serviceOrigin").text(origin);
+                            $("#serviceDestination").text(destination);
+                        } else {
+                            $("#serviceOrigin").text(destination);
+                            $("#serviceDestination").text(origin);
+                        }
+
                         //this does the update in the map
-                        setTimeout(function() {
+                        clearTimeout(timer);
+                        timer = setTimeout(function() {
                             askBusesButton.trigger('click');
                         }, 20000);
+                    });
+
+                    // press enter on serviceCode input
+                    $("#serviceCode").keypress(function (e) {
+                        var key = e.which;
+                        // the enter key code
+                        if(key == 13) {
+                            askBusesButton.trigger("click");
+                            return false;  
+                        } 
+                    });
+                   
+                    // change radio button
+                    $("input[type=radio][name=direction]").change(function() {
+                        if ($("#serviceCode").val()) {
+                            askBusesButton.trigger("click");
+                        }
                     });
                 }, "{% static ""%}");
             });
