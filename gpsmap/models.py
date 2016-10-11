@@ -121,11 +121,13 @@ class UltimosGps(models.Model):
     velocidad_2gps = models.IntegerField(blank=True, null=True)
     velocidad_4gps = models.IntegerField(blank=True, null=True)
     operador = models.IntegerField(blank=True, null=True)
+    orientacion = models.IntegerField(blank=True, null=True)
+    tipo = models.CharField(max_length=10, blank=True, null=True)
+    capacidad = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'ultimos_gps'
-
 
 class VelocidadUltima1H(models.Model):
     eje = models.CharField(max_length=100, blank=True, null=True)

@@ -70,11 +70,11 @@
                             <div class="form-inline">
                                 <div class="form-group">
                             	    <label class="control-label">Origen:</label>
-                            	    <p id="serviceOrigin" type="text" class="form-control-static">sd</p>
+                            	    <p id="serviceOrigin" type="text" class="form-control-static"></p>
                                 </div>
                                 <div class="form-group">
                             	    <label class="control-label">Destino:</label>
-                            	    <p id="serviceDestination" type="text" class="form-control-static">sd</p>
+                            	    <p id="serviceDestination" type="text" class="form-control-static"></p>
                                 </div>
                             </div>
                         </div>
@@ -99,7 +99,8 @@
         <script src="{% static "js/bootstrap.min.js" %}"></script>    
         <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
         <!--<script src="js/Leaflet.textpath.js"></script> -->
-        <script src="{% static "js/Leaflet.DTPM.js" %}"></script>
+        <script src="{% static "js/Leaflet.GTFS.js" %}"></script>
+        <script src="{% static "js/Leaflet.polylineDecorator.js" %}"></script>
 
         <script>
             $(document).ready(function() { 
@@ -116,6 +117,8 @@
                 var points = L.layerGroup([]);
                 var busStopsLayer = L.layerGroup([]);
                 var serviceRoute = L.featureGroup([]);
+                var routeWithArrows = L.layerGroup([]);
+
                 points.addTo(map);
                 //busStopsLayer.addTo(map);
                 serviceRoute.addTo(map);
@@ -139,13 +142,19 @@
 
                         //removes prevevius buses
                         points.clearLayers();
-                        var markerOptions = {
-                            icon: DTPM.getBusIcon(service)
-                        };
-
+                        
+                        // 0 = Norte, 1 = Noreste, 2 = Este, 3 = Sureste, 4 = Sur, 5 = Suroeste, 6 = Oeste, 7 = Noroeste 
+                        
                         $.each(data, function(i, v){
                             var latLng = L.latLng(v.latitud, v.longitud);
-                            var marker = L.marker(latLng, markerOptions);
+                            if (v.orientacion == 5 || v.orientacion == 6 || v.orientacion == 7 || v.orientacion == 4) {
+                               var busIcon = DTPM.getBusIcon(service, "R");
+                            } else {
+                               var busIcon = DTPM.getBusIcon(service, "");
+                            }
+                            var marker = L.marker(latLng, {
+                                icon: busIcon,
+                            });
 
                             var paramPatente = "Patente: " + v.patente;
                             var paramServicio = "Servicio: " + v.servicio;
@@ -157,6 +166,9 @@
                             var paramVel2GPS = "Vel. 2 gps: " + v.velocidad2GPS;
                             var paramVel4GPS = "Vel. 4 gps: " + v.velocidad4GPS;
                             var paramTiempo = "Tiempo: " + v.tiempo;
+                            var paramOrientacion = "Orientación: " + v.orientacion;
+                            var paramTipo = "Tipo: " + v.tipo;
+                            var paramCapacidad = "Capacidad: " + v.capacidad;
                             var params = [];
                             params.push(paramPatente);
                             params.push(paramServicio);
@@ -168,6 +180,9 @@
                             params.push(paramVel2GPS);
                             params.push(paramVel4GPS);
                             params.push(paramTiempo);
+                            params.push(paramOrientacion);
+                            params.push(paramTipo);
+                            params.push(paramCapacidad);
                             params = params.join("<br />");
 
                             marker.bindPopup("<p>" + params + "</p>");
@@ -177,6 +192,29 @@
                         // draw route
                         var routes = DTPM.getRoutes([service + direction]);
                         serviceRoute = DTPM.drawRoutes(serviceRoute, routes);
+
+                        var line = [];
+                        $.each(routes[0].route, function(i, v){
+                           line.push([v.latitud, v.longitud]); 
+                        });
+
+                        map.removeLayer(routeWithArrows);
+			routeWithArrows = L.polylineDecorator(line, {
+			    patterns: [
+			    {offset: 0, 
+			     endOffset: 0, 
+			     repeat: '40', 
+			     symbol: L.Symbol.arrowHead(
+                                 {pixelSize: 10, 
+                                  polygon: true, 
+                                  pathOptions: {
+                                      fillOpacity: 1, 
+                                      color: DTPM.getRouteColor(service), 
+                                      stroke: true}
+                                 })
+                             }
+			    ]
+			}).addTo(map);
                         
                         if (oldService != service) {
                             oldService = service;

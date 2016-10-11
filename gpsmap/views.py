@@ -63,7 +63,10 @@ class GetMapPositionsByService(View):
                 'operador': aPosition.operador, 
                 'latitud': aPosition.latitud, 
                 'longitud': aPosition.longitud, 
-                'tiempo': aPosition.tiempo})
+                'tiempo': aPosition.tiempo,
+                'orientacion': aPosition.orientacion,
+                'tipo': aPosition.tipo,
+                'capacidad': aPosition.capacidad})
 	return JsonResponse(response, safe=False)
 
 class ServiceHandler(View):
