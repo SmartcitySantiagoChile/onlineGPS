@@ -19,4 +19,5 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^map/', include('gpsmap.urls')),
+    url(r'^waitingUsersByBusStop/', include('esperaparaderos.urls')),
 ]
