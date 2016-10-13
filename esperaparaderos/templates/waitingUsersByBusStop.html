@@ -46,6 +46,26 @@
                         </div>
                     </div> 
 
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Dibujar ruta</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-inline">
+                            <input id="route" type="text" class="form-control" placeholder="Ingresar servicio aquí...">
+                            <label class="radio-inline">
+                                <input type="radio" name="direction" id="optionsRadios1" value="R" checked>
+                                REGRESO
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="direction" id="optionsRadios2" value="I">
+                                IDA
+                            </label>
+                            <input type="button" id="updateRoute" value="dibujar" class="btn btn-default" />
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="panel panel-default" >
                         <div class="panel-heading">
                             <h1 class="panel-title">Cantidad de paraderos a visualizar</h1>
@@ -96,11 +116,14 @@
                 DTPM.setLayerControl(map);
 
                 var busStopsLayer = L.featureGroup([]);
+                var routeLayer = L.featureGroup([]);
 
                 busStopsLayer.addTo(map);
+                routeLayer.addTo(map);
 
                 var overlays = {
                     "paraderos": busStopsLayer,
+                    "ruta de servicio": routeLayer,
                 };
                 L.control.layers({}, overlays).addTo(map);
 
@@ -139,14 +162,18 @@
                             });
 
                             var paramCodigo = "Código: " + v.codigo;
+                            var paramNombre = "Nombre: " + DTPM.data.busStop[v.codigo].name;
                             var paramTiempoUltBus = "Últimpo bus pasó a las: " + v.tiempoUltimoBus;
                             var paramTiempoUltBusHace = "Último bus hace: " + v.tiempoSinBusF;
                             var paramSubidas = "Gente esperando: " + v.subidas;
+                            var paramServicios = "Servicios que se detienen aquí: " + DTPM.data.busStop[v.codigo].services;
                             var params = [];
                             params.push(paramCodigo);
+                            params.push(paramNombre);
                             params.push(paramTiempoUltBus);
                             params.push(paramTiempoUltBusHace);
                             params.push(paramSubidas);
+                            params.push(paramServicios);
                             params = params.join("<br />");
 
                             marker.bindPopup("<p>" + params + "</p>");
@@ -223,6 +250,14 @@
                         updateQuantityButton.trigger('click');
                     });
 
+                    // draw route 
+                    $("#updateRoute").click(function() {
+                        var service = $("#route").val();
+                        var direction = $("input[name=direction]:checked").val();console.log(direction);
+                        var routes = DTPM.getRoutes([service + direction]);
+                        DTPM.drawRoutes(routeLayer, routes);
+                    });
+                    
 
                 }, "{% static ""%}");
             });
