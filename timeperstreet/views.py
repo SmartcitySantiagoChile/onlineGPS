@@ -35,7 +35,7 @@ class GetStreetData(View):
         """
 
         with connection.cursor() as cursor:
-            cursor.execute("SELECT a.id, a.eje, a.dist_en_ruta, a.latitud, a.longitud, b.velocidad FROM tramos_15min AS a LEFT JOIN velocidad_ultima_15min AS b ON a.id = b.tramo AND a.eje = b.eje WHERE b.velocidad IS NOT NULL")
+            cursor.execute("SELECT a.id, a.eje, a.dist_en_ruta, a.latitud, a.longitud, b.velocidad, b.tiempo FROM tramos_15min AS a LEFT JOIN (SELECT eje, tramo, tiempo, velocidad FROM velocidad_ultima_15min WHERE tiempo > NOW() - INTERVAL '1 day') AS b ON a.id = b.tramo AND a.eje = b.eje WHERE b.velocidad IS NOT NULL")
             for point in cursor.fetchall():
                 if not point[1] in response:
                     response[point[1]] = []

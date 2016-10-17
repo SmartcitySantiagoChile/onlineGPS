@@ -25,6 +25,31 @@
         html, body, .container-fluid {
              height: 100%;
         }
+
+        .info {
+            padding: 6px 8px;
+            font: 14px/16px Arial, Helvetica, sans-serif;
+            background: white;
+            background: rgba(255,255,255,0.8);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 5px;
+        } 
+        .info h4 {
+            margin: 0 0 5px;
+            color: #777;
+        }
+
+        .legend {
+            line-height: 18px;
+            color: #555;
+        }
+        .legend i {
+            width: 18px;
+            height: 18px;
+            float: left;
+            margin-right: 8px;
+            opacity: 0.8;
+        }
         </style>
     </head>
     <body>
@@ -35,45 +60,7 @@
         <!-- Add your site or application content here -->
         <div class="container-fluid">
             <div class="row" style="height: 100%">
-                <div class="col-md-3">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h3 class="panel-title">Buses Online</h3>
-                        </div>
-                        <div class="panel-body">
-                            <div class="form-inline">
-                            <input id="serviceCode" type="text" class="form-control" placeholder="Ingresar servicio aquí...">
-                            <label class="radio-inline">
-                                <input type="radio" name="direction" id="optionsRadios1" value="R" checked>
-                                REGRESO
-                            </label>
-                            <label class="radio-inline">
-                                <input type="radio" name="direction" id="optionsRadios2" value="I">
-                                IDA
-                            </label>
-                            <input type="button" id="seeBuses" value="Visualizar buses" class="btn btn-default" /> 
-                            </div>
-                        </div>
-                    </div>
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h3 class="panel-title">Información de servicio</h3>
-                        </div>
-                        <div class="panel-body">
-                            <div class="form-inline">
-                                <div class="form-group">
-                            	    <label class="control-label">Origen:</label>
-                            	    <p id="serviceOrigin" type="text" class="form-control-static"></p>
-                                </div>
-                                <div class="form-group">
-                            	    <label class="control-label">Destino:</label>
-                            	    <p id="serviceDestination" type="text" class="form-control-static"></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-9" style="height: 100%">
+                <div class="col-md-12" style="height: 100%">
                     <div id="mapid" style="height: 100%;min-height: 100%"></div>
                 </div>
             </div>
@@ -97,9 +84,54 @@
                  * SET MAP
                  */
                 var beauchefLocation = L.latLng(-33.457910, -70.663869);
-                var map = L.map("mapid", {editable: true}).setView(beauchefLocation, 15);
+                var map = L.map("mapid", {editable: true}).setView(beauchefLocation, 12);
                 DTPM.setLayerControl(map);
  
+                // color for route
+                var getColor = function (d) {
+                    return d <  0  ? '#c4c4c4' :
+                           d <= 15 ? '#ff0000' :
+                           d <= 19 ? '#ff9000' :
+                           d <= 21 ? '#fff600' :
+                           d <= 25 ? '#19ff00' :
+                           d <= 30 ? '#0d8900' :
+                                     '#2133f2';
+                }
+                /**
+                 * INFO
+                 */
+                var info = L.control({position: 'bottomleft'});
+
+                info.onAdd = function (map) {
+                    this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+                    this._div.innerHTML = '<h4>Velocidad por eje</h4>' + 
+                        '<b>Muestra de las velocidades presente en los ejes principales de Santiago de chile</b>' + 
+                        '<br /> Los datos mostrados consideran la velocidad de los buses de los últimos 15 minutos.' +
+                        '<br /> que recorren las calles señaladas.';
+                    return this._div;
+                };
+                info.addTo(map);
+
+                var legend = L.control({position: 'bottomright'});
+
+                legend.onAdd = function (map) {
+
+                    var div = L.DomUtil.create('div', 'info legend'),
+                    grades = [0, 15, 19, 21, 25, 30],
+                    labels = [];
+
+                    // loop through our density intervals and generate a label with a colored square for each interval
+                    for (var i = 0; i < grades.length; i++) {
+                        div.innerHTML +=
+                        '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
+                        grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+                    }
+
+                    return div;
+                }; 
+
+                legend.addTo(map);
+
                 /**
                  * LOAD DATA
                  */
@@ -108,10 +140,13 @@
                     function draw(data) {
                     
                         var overlays = {};
+                        var bounds = null;
 
                         $.each(data, function(i1, street){
                             var latLngsWithVelocities = [];
-
+                            
+                            var _min = 9999;
+                            var _max = 0;
                             // order by distOnRoute
                             street.sort(function(a, b) {
                                 return a.distOnRoute - b.distOnRoute;
@@ -122,31 +157,49 @@
                                     section.latitude, 
                                     section.longitude, 
                                     section.velocity]);
+                                /*
+                                if (section.velocity < _min)
+                                    _min = section.velocity;
+                                if (section.velocity > _max)
+                                    _max = section.velocity;
+                                */
                             });
 
                             var line = L.hotline(latLngsWithVelocities, {
-                                min: 0,
-                                max: 100,
+                                min: -1,//_min,
+                                max: 100, //_max,
                                 palette: {
-                                    0.0: '#008800',
-                                    0.5: '#ffff00',
-                                    1.0: '#ff0000',
+                                    0.0:  getColor(0),
+                                    0.15: getColor(15),
+                                    0.19: getColor(19),
+                                    0.21: getColor(21),
+                                    0.25: getColor(25),
+                                    0.30: getColor(30),
+                                    1.0: getColor(100),
                                 },
                                 weight: 10,
                                 outlineColor: '#000000',
-                                outlineWidth: 1
+                                outlineWidth: 1, 
+                                //smoothFactor: 2
                             });
                             // var line = L.polyline(latLngsWithVelocities);
-                            line.bindPopup('Calle: ' + i1).addTo(map);
                             overlays[i1] = line;
+                            line.bindPopup('<h1>' + '20 Minutos' + '</h1><h3>Quedó la embarrá perrito.</h3>');
                             line.addTo(map);
+
+                            if (bounds == null) {
+                                bounds = line.getBounds();
+                            } else {
+                                bounds.extend(line.getBounds());
+                            }
                         });
 
                         L.control.layers({}, overlays).addTo(map);
 
+                        map.fitBounds(bounds);
+
                         console.log("Map updated");
                     };
-
                     
                     $.ajax({
                         url: "getStreetData",
