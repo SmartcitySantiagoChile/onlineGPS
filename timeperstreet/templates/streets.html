@@ -1,0 +1,162 @@
+<!doctype html>
+{% load static %}
+<html class="no-js" lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Tiempos de viaje</title>
+        <meta name="description" content="Servicios en vivo">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+        <!-- Place favicon.ico in the root directory -->
+
+        <link rel="stylesheet" href="{% static "css/normalize.css" %}">
+        <link rel="stylesheet" href="{% static "css/main.css" %}">
+        <script src="{% static "js/vendor/modernizr-2.8.3.min.js" %}"></script>
+        
+        <!-- leaflet -->
+        <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.1/dist/leaflet.css" />
+        
+        <!-- bootstrap -->
+        <link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}"/>
+        <link rel="stylesheet" href="{% static "css/bootstrap-theme.min.css" %}" />
+        <style>
+        html, body, .container-fluid {
+             height: 100%;
+        }
+        </style>
+    </head>
+    <body>
+        <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <!-- Add your site or application content here -->
+        <div class="container-fluid">
+            <div class="row" style="height: 100%">
+                <div class="col-md-3">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Buses Online</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-inline">
+                            <input id="serviceCode" type="text" class="form-control" placeholder="Ingresar servicio aquí...">
+                            <label class="radio-inline">
+                                <input type="radio" name="direction" id="optionsRadios1" value="R" checked>
+                                REGRESO
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="direction" id="optionsRadios2" value="I">
+                                IDA
+                            </label>
+                            <input type="button" id="seeBuses" value="Visualizar buses" class="btn btn-default" /> 
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Información de servicio</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-inline">
+                                <div class="form-group">
+                            	    <label class="control-label">Origen:</label>
+                            	    <p id="serviceOrigin" type="text" class="form-control-static"></p>
+                                </div>
+                                <div class="form-group">
+                            	    <label class="control-label">Destino:</label>
+                            	    <p id="serviceDestination" type="text" class="form-control-static"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-9" style="height: 100%">
+                    <div id="mapid" style="height: 100%;min-height: 100%"></div>
+                </div>
+            </div>
+        </div>
+        
+        <script src="{% static "js/vendor/jquery-1.12.0.min.js" %}"></script>
+        <script src="{% static "js/plugins.js" %}"></script>
+        <script src="{% static "js/main.js" %}"></script>
+        <script src="{% static "js/bootstrap.min.js" %}"></script>    
+        <script src="https://npmcdn.com/leaflet@1.0.1/dist/leaflet.js"></script>
+        <!--<script src="js/Leaflet.textpath.js"></script> -->
+        <script src="{% static "js/Leaflet.GTFS.js" %}"></script>
+        <script src="{% static "js/leaflet.hotline.js" %}"></script>
+
+        <script>
+            $(document).ready(function() { 
+                // to make fitBounds only the first time service is loaded
+                var oldService = "";
+
+                /**
+                 * SET MAP
+                 */
+                var beauchefLocation = L.latLng(-33.457910, -70.663869);
+                var map = L.map("mapid", {editable: true}).setView(beauchefLocation, 15);
+                DTPM.setLayerControl(map);
+ 
+                /**
+                 * LOAD DATA
+                 */
+                DTPM.loadData(function(){
+ 
+                    function draw(data) {
+                    
+                        var overlays = {};
+
+                        $.each(data, function(i1, street){
+                            var latLngsWithVelocities = [];
+
+                            // order by distOnRoute
+                            street.sort(function(a, b) {
+                                return a.distOnRoute - b.distOnRoute;
+                            });
+
+                            $.each(street, function(i2, section){
+                                latLngsWithVelocities.push([
+                                    section.latitude, 
+                                    section.longitude, 
+                                    section.velocity]);
+                            });
+
+                            var line = L.hotline(latLngsWithVelocities, {
+                                min: 0,
+                                max: 100,
+                                palette: {
+                                    0.0: '#008800',
+                                    0.5: '#ffff00',
+                                    1.0: '#ff0000',
+                                },
+                                weight: 10,
+                                outlineColor: '#000000',
+                                outlineWidth: 1
+                            });
+                            // var line = L.polyline(latLngsWithVelocities);
+                            line.bindPopup('Calle: ' + i1).addTo(map);
+                            overlays[i1] = line;
+                            line.addTo(map);
+                        });
+
+                        L.control.layers({}, overlays).addTo(map);
+
+                        console.log("Map updated");
+                    };
+
+                    
+                    $.ajax({
+                        url: "getStreetData",
+                        success: function(data){
+                            draw(data);
+                        }
+                    });
+                        
+                }, "{% static ""%}");
+            });
+        </script>
+    </body>
+</html>
