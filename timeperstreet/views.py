@@ -33,21 +33,28 @@ class GetStreetData(View):
                 'longitude': point.longitud, 
                 'section': point.id})
         """
-
+        streets = {}
         with connection.cursor() as cursor:
-            cursor.execute("SELECT a.id, a.eje, a.dist_en_ruta, a.latitud, a.longitud, b.velocidad, b.tiempo FROM tramos_15min AS a LEFT JOIN (SELECT eje, tramo, tiempo, velocidad FROM velocidad_ultima_15min WHERE tiempo > NOW() - INTERVAL '1 day') AS b ON a.id = b.tramo AND a.eje = b.eje WHERE b.velocidad IS NOT NULL")
+            cursor.execute("SELECT a.eje, a.id, a.dist_en_ruta, a.latitud, a.longitud, b.velocidad, b.tiempo FROM tramos_15min AS a LEFT JOIN (SELECT eje, tramo, tiempo, velocidad FROM velocidad_ultima_15min WHERE tiempo > NOW() - INTERVAL '1 day') AS b ON a.id = b.tramo AND a.eje = b.eje WHERE b.velocidad IS NOT NULL")
             for point in cursor.fetchall():
-                if not point[1] in response:
-                    response[point[1]] = []
-                response[point[1]].append({
-                    'distOnRoute': point[2], 
-                    'velocity': point[5], 
-                    'latitude': point[3], 
-                    'longitude': point[4], 
-                    'section': point[0]})
-
-           
-
+                street      = point[0]
+                section     = point[1]
+                distOnRoute = point[2]
+                latitude    = point[3]
+                longitude   = point[4]
+                velocity    = point[5]
+                if not street in streets:
+                    streets[street] = {}
+                if not section in streets[street]:
+                    streets[street][section] = []
+                streets[street][section].append({
+                    'distOnRoute': distOnRoute, 
+                    'velocity': velocity, 
+                    'latitude': latitude, 
+                    'longitude': longitude})
+        
+        response['streets'] = streets
+ 
         return JsonResponse(response, safe=False)
 
 class StreetMapHandler(View):
