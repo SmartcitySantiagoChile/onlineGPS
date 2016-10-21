@@ -21,4 +21,5 @@ urlpatterns = [
     url(r'^map/', include('gpsmap.urls')),
     url(r'^waitingUsersByBusStop/', include('esperaparaderos.urls')),
     url(r'^timePerStreet/', include('timeperstreet.urls')),
+    url(r'^similarservices/', include('similarservices.urls')),
 ]
