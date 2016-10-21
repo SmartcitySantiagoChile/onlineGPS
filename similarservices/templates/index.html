@@ -140,7 +140,6 @@
 
                     // draw route
                     var routes = DTPM.getRoutes([service + direction]);
-                    routeLayer.clearLayers();
                     DTPM.drawRoutes(routeLayer, routes);
 
                     var line = [];
@@ -164,7 +163,10 @@
                             }
 			    ]
                     });
-                
+                    var popupMessage = "<h4>" + service + direction + "</h4>";
+                    routeWithArrows.bindPopup(popupMessage);
+                    routeLayer.bindPopup(popupMessage);
+
                     routeLayer.addLayer(routeWithArrows);
                     routeLayer.addTo(map);
                     //busStopsLayer.addTo(map);
