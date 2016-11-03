@@ -131,18 +131,22 @@
                                 tipPoint.x - this.options.pixelSize * Math.cos(headAngle2),
                                 tipPoint.y + this.options.pixelSize * Math.sin(headAngle2));
                             arrowBack1 = new L.Point(
-                                tipPoint.x - this.options.pixelSize * Math.cos(headAngle1),
-                                tipPoint.y + this.options.pixelSize * Math.sin(headAngle1)),
+                                arrowHead1.x - this.options.pixelSize * Math.cos(headAngle1*2),
+                                arrowHead1.y + this.options.pixelSize * Math.sin(headAngle1*2)),
                             arrowBack2 = new L.Point(
-                                tipPoint.x - this.options.pixelSize * Math.cos(headAngle2),
-                                tipPoint.y + this.options.pixelSize * Math.sin(headAngle2));
+                                arrowHead2.x - this.options.pixelSize * Math.cos(headAngle2*3),
+                                arrowHead2.y + this.options.pixelSize * Math.sin(headAngle2*3));
+                            arrowBackCenter = new L.Point(
+                                tipPoint.x - this.options.pixelSize * Math.cos(headAngle2*4),
+                                tipPoint.y + this.options.pixelSize * Math.sin(headAngle2*4));
 //TODO: TERMINAR ESTO
                         return [
                             map.unproject(arrowHead1),
                             dirPoint.latLng,
                             map.unproject(arrowHead2),
-                            //map.unproject(arrowBack2),
-                            //map.unproject(arrowBack1)
+                            map.unproject(arrowBack2),
+                            map.unproject(arrowBack1),
+                            map.unproject(arrowBackCenter)
                         ];
                     }
                 });
@@ -159,9 +163,9 @@
                     editable: true,
                     closePopupOnClick: false
                 }).setView(beauchefLocation, 13);
-                var layers = [];
+                var layers = {};
                 var baseLayer = DTPM.setLayerControl(map);
-                var overlaysController = L.control.layers({}, {}).addTo(map);
+                var mapControl = L.control.layers({}, {}).addTo(map);
 
                 // color for route
                 var getColor = function (d) {
@@ -216,21 +220,33 @@
                  */
                 function drawHotline(data) {
                     
-                    var overlays = {};
                     var bounds = null;
                     
                     // remove currents layers
                     $.each(layers, function(i, layer){
                         map.removeLayer(layer);
+                        mapControl.removeLayer(layer);
                     });
-                    layers = [];
+                    layers = {};
 
                     $.each(data, function(i1, street){
                         var latLngsWithVelocities = [];
                         var joinedSections = [];
+                        var streetName = i1;
+                        var streetTime = street.time;
+                        //var streetVelocity = ;
 
-                        $.each(street, function(i, section){
-                            joinedSections = joinedSections.concat(section);
+                        $.each(street.sections, function(i, section){
+                            var velocity = section.velocity;
+                            var time = section.time;
+                            var originStreet = section.originStreet;
+                            var destinationStreet = section.destinationStreet;
+                            
+                            section.points.map(function(point){
+                                point["velocity"] = velocity;
+                                point["time"] = time;
+                            });
+                            joinedSections = joinedSections.concat(section.points);
                         });
                         joinedSections;
 
@@ -238,12 +254,12 @@
                         joinedSections.sort(function(a, b) {
                             return a.distOnRoute - b.distOnRoute;
                         });
-
-                        $.each(joinedSections, function(i2, section){
+                        
+                        $.each(joinedSections, function(i2, point){
                             latLngsWithVelocities.push([
-                                section.latitude, 
-                                section.longitude, 
-                                section.velocity]);
+                                point.latitude, 
+                                point.longitude, 
+                                point.velocity]);
                         });
 
                         var line = L.hotline(latLngsWithVelocities, {
@@ -264,9 +280,9 @@
                             //smoothFactor: 2
                         });
                         // var line = L.polyline(latLngsWithVelocities);
-                        overlays[i1] = line;
-                        //line.bindPopup('<h1>' + velocity + ' Km/hr</h1><h4>Aquí puede ir otra cosa.</h4>');
-                        layers.push(line);
+                        //var message = '<h1>' + velocity + ' Km/hr</h1><h4>Aquí puede ir otra cosa.</h4>';
+                        //line.bindPopup(message);
+                        layers[i1] = line;
 
                         if (bounds == null) {
                             bounds = line.getBounds();
@@ -278,10 +294,8 @@
                     // add new layers
                     $.each(layers, function(i, layer){
                         layer.addTo(map);
+                        mapControl.addOverlay(layer, i);
                     });
-                    // remove currents overlaysf from control
-                    overlaysController.remove();
-                    overlaysController = L.control.layers({}, overlays).addTo(map);
 
                     map.fitBounds(bounds);
 
@@ -290,37 +304,43 @@
 
                 function drawPolylineDecorator(data) {
                      
-                    var overlays = {};
+                    var overlays = [];
                     var bounds = null;
                     
                     var ads;
                     // remove currents layers
                     $.each(layers, function(i, layer){
                         map.removeLayer(layer);
+                        mapControl.removeLayer(layer);
                     });
-                    layers = [];
+                    layers = {};
 
                     $.each(data, function(i1, street){
                         var overlay = L.layerGroup([]);
-                        $.each(street, function(i, section){
+                        var streetName = i1;
+                        var streetTime = street.time
+                        $.each(street.sections, function(i, section){
                             var latLngs = [];
+                            var velocity = section.velocity;
+                            var sectionTime = section.time;
+                            var points = section.points;
                             
                             // order by distOnRoute
-                            section.sort(function(a, b) {
+                            points.sort(function(a, b) {
                                 return a.distOnRoute - b.distOnRoute;
                             });
     
-                            $.each(section, function(i2, section){
-                                latLngs.push([section.latitude, section.longitude]);
+                            $.each(points, function(i2, point){
+                                latLngs.push([point.latitude, point.longitude]);
                             });
-                            var velocity = section[0].velocity;
 
                             var line = L.polyline(latLngs, {color: getColor(velocity)});
-                            //overlay.addLayer(line);
+                            overlay.addLayer(line);
                             var patternsOpts = [
                                     // defines a pattern of 10px-wide dashes, repeated every 20px on the line
                                     {offset: 0, repeat: 30, symbol: 
-                                     L.Symbol.longArrowHead({rotate: true,
+                                     //L.Symbol.longArrowHead({rotate: true,
+                                     L.Symbol.arrowHead({rotate: true,
                                          pixelSize: 30, 
                                          polygon: true, 
                                          pathOptions: {
@@ -333,7 +353,8 @@
                             var decorator = L.polylineDecorator(line, {
                                 patterns: patternsOpts                          
                             });
-                            decorator.bindPopup('<h1>' + velocity + ' Km/hr</h1><h4>Aquí puede ir otra cosa.</h4>');
+                            var message = '<h1>' + velocity + ' Km/hr</h1><h4>Aquí puede ir otra cosa.</h4>';
+                            decorator.bindPopup(message);
                             overlay.addLayer(decorator);
 
                             //********************************************************/
@@ -356,15 +377,14 @@
                             }
                         });
                         
-                        overlay.addTo(map);
-                        overlays[i1] = overlay
-                        layers.push(overlay);
-                        overlay.addTo(map);
+                        layers[i1] = overlay
                     });
 
-                    // remove currents overlaysf from control
-                    overlaysController.remove();
-                    overlaysController = L.control.layers({}, overlays).addTo(map);
+                    // override currents overlays of control
+                    $.each(layers, function(i, layer){
+                        layer.addTo(map);
+                        mapControl.addOverlay(layer);
+                    });
 
                     map.fitBounds(bounds);
 
@@ -376,32 +396,40 @@
                     var overlays = {};
                     var bounds = null;
                     
-                    // remove currents layers
+                    // remove currents layers from map
                     $.each(layers, function(i, layer){
                         map.removeLayer(layer);
+                        mapControl.removeLayer(layer);
                     });
-                    layers = [];
+                    layers = {};
 
                     $.each(data, function(i1, street){
-                        overlay = L.layerGroup([]);
-                        $.each(street, function(i, section){
+                        var overlay = L.layerGroup([]);
+                        var streetName = i1;
+                        var streetTime = street.time;
+                        //var streetVelocity = ;
+                        $.each(street.sections, function(i, section){
                             var latLngs = [];
-                            
+                            var velocity = section.velocity;
+                            var sectionTime = section.time;
+                            var points = section.points
+
                             // order by distOnRoute
-                            section.sort(function(a, b) {
+                            points.sort(function(a, b) {
                                 return a.distOnRoute - b.distOnRoute;
                             });
     
-                            $.each(section, function(i2, section){
-                                latLngs.push([section.latitude, section.longitude]);
+                            $.each(points, function(i2, point){
+                                latLngs.push([point.latitude, point.longitude]);
                             });
-                            var velocity = section[0].velocity;
 
                             var line = L.polyline(latLngs, {
                                 color: getColor(velocity), 
                                 weight: 8
                             });
-                            line.bindPopup('<h1>' + velocity + ' Km/hr</h1><h4>Aquí puede ir otra cosa.</h4>', {
+
+                            var message = "<h1>" + velocity + " Km/hr</h1><h4>Aquí puede ir otra cosa.</h4>";
+                            line.bindPopup(message, {
                                 closeButton: false
                             });
                             overlay.addLayer(line);
@@ -413,20 +441,53 @@
                             }
                         });
                         
-                        overlay.addTo(map);
-                        overlays[i1] = overlay
-                        layers.push(overlay);
+                        layers[i1] = overlay;
                     });
 
-                    // remove currents overlaysf from control
-                    overlaysController.remove();
-                    overlaysController = L.control.layers({}, overlays).addTo(map);
+                    // add layers to map and control
+                    $.each(layers, function(i, layer){
+                        layer.addTo(map);
+                        mapControl.addOverlay(layer, i);
+                    });
 
                     map.fitBounds(bounds);
 
                     console.log("Map updated with polyline");
                 };
  
+                function drawPOIs(data) {
+                    
+                    var POIsOverlay = L.layerGroup([]);
+
+                    $.each(data, function(i, poi){
+                        var paramName = "Nombre: " + poi.name;
+                        //var paramOrigin = "Origen: " + poi.origin;
+                        //var paramDestination = "Destino: " + poi.destination;
+                        var paramZone = "Zona: " + poi.zone;
+                        //var paramStreet = "Calle: " + poi.street;
+                        var params = [];
+                        params.push(paramName);
+                        //params.push(paramOrigin);
+                        //params.push(paramDestination);
+                        params.push(paramZone);
+                        //params.push(paramStreet);
+                        params = params.join("<br />");
+
+                        var marker = L.marker([poi.latitude, poi.longitude], {
+                           icon: L.icon({
+                               iconUrl: 'http://icons.iconarchive.com/icons/custom-icon-design/mono-business/16/target-icon.png',
+                               iconSize: [16, 16]
+                           })
+                        }).bindPopup("<p>" + params + "</p>");
+                        POIsOverlay.addLayer(marker);
+                    });
+
+                    POIsOverlay.addTo(map);
+                    mapControl.addOverlay(POIsOverlay, 'POIs');
+
+                    console.log("Map updated with POIs");
+                }
+
                 /**
                  * LOAD DATA
                  */
@@ -448,19 +509,35 @@
                         }
                     };
 
+                    var rawPOIsData = [];
                     var rawData = [];
                     $.ajax({
                         url: "getStreetData",
                         success: function(data){
-                            rawData = data.streets;
+                            //TODO: dar formato cn opciones de destino y zona
+                            Norte =       data.Destination.Centro.Norte;
+                            Poniente1 =   data.Destination.Centro.Poniente1;
+                            Poniente2 =   data.Destination.Centro.Poniente2;
+                            Oriente =     data.Destination.Centro.Oriente;
 
+                            rawData = $.extend({}, Norte, Poniente1, Poniente2, Oriente);
+                            console.log(rawData);
                             updateMap(rawData);
 
                             $('#drawType').change(function(){
                                 updateMap(rawData);
                             });
+
+                            $.ajax({
+                                url: "getPOIData",
+                                success: function(data){
+                                    rawPOIsData = data.POIs;
+                                    drawPOIs(rawPOIsData);
+                                }
+                            });
                         }
                     });
+                    
                 }, "{% static ""%}");
             });
         </script>
