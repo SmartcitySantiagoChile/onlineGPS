@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'timeperstreet',
     'velocityperstreet',
     'similarservices',
+    'timepredictor',
 ]
 
 MIDDLEWARE = [

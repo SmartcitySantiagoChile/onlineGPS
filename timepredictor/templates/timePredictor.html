@@ -1,0 +1,282 @@
+<!doctype html>
+{% load static %}
+<html class="no-js" lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Tiempos estimados</title>
+        <meta name="description" content="Servicios en vivo">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+        <!-- Place favicon.ico in the root directory -->
+
+        <link rel="stylesheet" href="{% static "css/normalize.css" %}">
+        <link rel="stylesheet" href="{% static "css/main.css" %}">
+        <script src="{% static "js/vendor/modernizr-2.8.3.min.js" %}"></script>
+        
+        <!-- leaflet -->
+        <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+        
+        <!-- bootstrap -->
+        <link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}"/>
+        <link rel="stylesheet" href="{% static "css/bootstrap-theme.min.css" %}" />
+        <style>
+        html, body, .container-fluid {
+             height: 100%;
+        }
+	.leaflet-div-icon
+	{
+	    background: white;
+	}
+        </style>
+    </head>
+    <body>
+        <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <!-- Add your site or application content here -->
+        <div class="container-fluid">
+            <div class="row" style="height: 100%">
+                <div class="col-md-3">
+                    <HR>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Predictor de tiempo</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-inline">
+                            <input id="licencePlate" type="text" class="form-control" placeholder="Ingresar patente .... CJRS-60">
+                            <input type="button" id="seeBuses" value="Visualizar buses" class="btn btn-default" /> 
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Información de servicio</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-inline">
+                                <div class="form-group">
+                            	    <label class="control-label">Origen:</label>
+                            	    <p id="serviceOrigin" type="text" class="form-control-static"></p>
+                                </div>
+                                <div class="form-group">
+                            	    <label class="control-label">Destino:</label>
+                            	    <p id="serviceDestination" type="text" class="form-control-static"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-9" style="height: 100%;min-height: 100%">
+                    <div id="mapid" style="height: 100%;min-height: 100%"></div>
+                </div>
+            </div>
+        </div>
+        
+        <script src="{% static "js/vendor/jquery-1.12.0.min.js" %}"></script>
+        <script src="{% static "js/plugins.js" %}"></script>
+        <script src="{% static "js/main.js" %}"></script>
+        <script src="{% static "js/bootstrap.min.js" %}"></script>    
+        <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+        <!--<script src="js/Leaflet.textpath.js"></script> -->
+        <script src="{% static "js/Leaflet.GTFS.js" %}"></script>
+        <script src="{% static "js/Leaflet.polylineDecorator.js" %}"></script>
+
+        <script>
+            $(document).ready(function() { 
+
+                /**
+                 * SET MAP
+                 */
+                var beauchefLocation = L.latLng(-33.457910, -70.663869);
+                var map = L.map("mapid", {editable: true}).setView(beauchefLocation, 15);
+                DTPM.setLayerControl(map);
+
+                var bus = L.layerGroup([]);
+                var times = L.layerGroup([]);
+                var stopsLayer = L.featureGroup([]);
+                var routeLayer = L.featureGroup([]);
+
+                bus.addTo(map);
+                times.addTo(map);
+                stopsLayer.addTo(map);
+                routeLayer.addTo(map);
+
+                var overlays = {
+                    "bus": bus,
+                    "tiempos": times,
+                    "paraderos": stopsLayer,
+                    "Ruta": routeLayer
+                };
+                L.control.layers({}, overlays).addTo(map);
+
+                /**
+                 * LOAD DATA
+                 */
+                DTPM.loadData(function(){
+ 
+                    function drawTimesOnMap(data) {
+
+		        var bus = data.bus;
+			var stops = data.stops;
+
+			$.each(stops, function(i, v){
+			    var arrivedEstimatedTime = v.arrivedEstimatedTime.split('T')[1];
+			    var distanceOnRoute = v.distanceOnRoute;
+			    var arrivedEstimatedTimeInSecs = v.arrivedEstimatedTimeInSecs;
+			    var stopCode = v.stopCode;
+			    
+			    var stop = DTPM.data.busStop[stopCode];
+			    var marker = L.marker([stop.latitude, stop.longitude], {
+                                icon: L.divIcon({
+					iconSize: new L.Point(50, 50), 
+					html: '<h6>'+ arrivedEstimatedTime + '</h6>'
+				    })
+		            });
+			    stopsLayer.addLayer(marker);
+			});
+
+                        map.fitBounds(stopsLayer.getBounds());
+		    }
+
+                    function drawBusOnMap(data) {
+                        
+                        // 0 = Norte, 1 = Noreste, 2 = Este, 3 = Sureste, 4 = Sur, 5 = Suroeste, 6 = Oeste, 7 = Noroeste 
+                        $.each(data, function(i, v){
+                            // draw bus stops related to service 
+			    route = v.userRoute.substr(0, v.userRoute.length-1);
+			    direction = v.userRoute.substr(-1);
+                            //stopsLayer = DTPM.drawStopsForService(stopsLayer, route, direction);
+
+                            //removes prevevius bus
+                            bus.clearLayers();
+
+                            var latLng = L.latLng(v.latitude, v.longitude);
+                            if (v.orientation == 5 || v.orientation == 6 || v.orientation == 7 || v.orientation == 4) {
+                               var busIcon = DTPM.getBusIcon(route, "R");
+                            } else {
+                               var busIcon = DTPM.getBusIcon(route, "");
+                            }
+                            var marker = L.marker(latLng, {
+                                icon: busIcon,
+                            });
+
+                            var paramPatente = "Patente: " + v.licencePlate;
+                            var paramServicio = "Servicio: " + v.userRoute;
+                            var paramServicioCode = "Codigo de servicio: " + v.authRoute;
+                            var paramOperador = "Operador: " + v.operator;
+                            var paramDistEnRuta = "Dist. en ruta: " + v.distOnRoute;
+                            var paramDistARuta = "Dist a ruta: " + v.distToRoute;
+                            var paramVelInst = "Vel. instantánea: " + v.instVelocity;
+                            var paramVel2GPS = "Vel. 2 gps: " + v.velocity2GPS;
+                            var paramVel4GPS = "Vel. 4 gps: " + v.velocity4GPS;
+                            var paramTiempo = "Tiempo: " + v.time;
+                            var paramOrientacion = "Orientación: " + v.orientation;
+                            var paramTipo = "Tipo: " + v.type;
+                            var paramCapacidad = "Capacidad: " + v.capacity;
+                            var params = [];
+                            params.push(paramPatente);
+                            params.push(paramServicio);
+                            params.push(paramServicioCode);
+                            params.push(paramOperador);
+                            params.push(paramDistEnRuta);
+                            params.push(paramDistARuta);
+                            params.push(paramVelInst);
+                            params.push(paramVel2GPS);
+                            params.push(paramVel4GPS);
+                            params.push(paramTiempo);
+                            params.push(paramOrientacion);
+                            params.push(paramTipo);
+                            params.push(paramCapacidad);
+                            params = params.join("<br />");
+
+                            marker.bindPopup("<p>" + params + "</p>");
+                            bus.addLayer(marker);
+
+			    /* ADD ROUTE PATH*/
+                            var routes = DTPM.getRoutes([v.userRoute]);
+                            routeLayer = DTPM.drawRoutes(routeLayer, routes);
+
+                            var line = [];
+                            $.each(routes[0].route, function(i, v){
+                               line.push([v.latitud, v.longitud]); 
+                            });
+
+		            routeWithArrows = L.polylineDecorator(line, {
+			        patterns: [
+                                 {offset: 0, 
+			         endOffset: 0, 
+			         repeat: '40', 
+			         symbol: L.Symbol.arrowHead(
+                                     {pixelSize: 10, 
+                                      polygon: true, 
+                                      pathOptions: {
+                                          fillOpacity: 1, 
+                                          color: DTPM.getRouteColor(route), 
+                                          stroke: true}
+                                     })
+                                 }
+			        ]
+			    });
+			    routeLayer.addLayer(routeWithArrows);
+                        });
+                    
+			/*
+                        var serviceInfo = DTPM.data.service[serviceCode];
+                        var origin = serviceInfo.origin;
+                        var destination = serviceInfo.destiny;
+                        if (direction == "I") {
+                            $("#serviceOrigin").text(origin);
+                            $("#serviceDestination").text(destination);
+                        } else {
+                            $("#serviceOrigin").text(destination);
+                            $("#serviceDestination").text(origin);
+                        }*/
+
+                        console.log("Map updated");
+                    };
+                    
+                    // SET BUTTON ACTION
+                    var askBusesButton = $("#seeBuses");
+                    askBusesButton.click(function(){
+                        var licencePlate = $("#licencePlate").val();
+			
+                        $.ajax({
+                            url: "getBusPosition/" + licencePlate,
+                            success: function(data){
+                                drawBusOnMap(data);
+                            }
+                        });
+                        $.ajax({
+                            url: "getEstimatedTimes/" + licencePlate,
+                            success: function(data){
+                                drawTimesOnMap(data);
+                            }
+                        });
+                       
+                    });
+
+                    // press enter on serviceCode input
+                    $("#serviceCode").keypress(function (e) {
+                        var key = e.which;
+                        // the enter key code
+                        if(key == 13) {
+                            askBusesButton.trigger("click");
+                            return false;  
+                        } 
+                    });
+                   
+                    // change radio button
+                    $("input[type=radio][name=direction]").change(function() {
+                        if ($("#serviceCode").val()) {
+                            askBusesButton.trigger("click");
+                        }
+                    });
+                }, "{% static ""%}");
+            });
+        </script>
+    </body>
+</html>
