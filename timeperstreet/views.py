@@ -33,6 +33,7 @@ class GetStreetData(View):
                 #street['zone'] = point.zona
                 #street['zoneGoal'] = point.destino
                 street['time'] = point.tiempo_viaje_ultimo_15_eje
+                street['velocity'] = point.velocidad_eje
                 street['sections'] = {}
                 response[dest][point.destino][point.zona][point.eje] = street
              
@@ -81,7 +82,7 @@ class GetPOIData(View):
         return JsonResponse(response, safe=False)
 
 
-class StreetMapHandler(View):
+class StreetTimeMapHandler(View):
     '''This class manages the map where the street section are shown'''
 
     def __init__(self):
@@ -89,19 +90,7 @@ class StreetMapHandler(View):
         self.context={}
 
     def get(self, request):
-        template = "streets.html"
-
-        return render(request, template, self.context)
-
-class StreetVelocityMapHandler(View):
-    '''This class manages the map where the street section are shown'''
-
-    def __init__(self):
-        """the contructor, context are the parameter given to the html template"""
-        self.context={}
-
-    def get(self, request):
-        template = "streetsVelocity.html"
+        template = "streetsTime.html"
 
         return render(request, template, self.context)
 

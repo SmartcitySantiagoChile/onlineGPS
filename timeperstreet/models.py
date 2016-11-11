@@ -18,6 +18,7 @@ class Tramos15Min(models.Model):
     velocidad_ultimo_15_tramo = models.FloatField(blank=True, null=True)
     tiempo_viaje_ultimo_15_tramo = models.IntegerField(blank=True, null=True)
     tiempo_viaje_ultimo_15_eje = models.IntegerField(blank=True, null=True)
+    velocidad_eje = models.IntegerField(blank=True, null=True)
     velocidad_predict_15_tramo = models.FloatField(blank=True, null=True)
     tiempo_viaje_predict_15_tramo = models.IntegerField(blank=True, null=True)
     tiempo_viaje_predict_15_eje = models.IntegerField(blank=True, null=True)
