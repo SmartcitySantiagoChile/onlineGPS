@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'velocityperstreet',
     'similarservices',
     'timepredictor',
+    'transappbusposition',
 ]
 
 MIDDLEWARE = [
