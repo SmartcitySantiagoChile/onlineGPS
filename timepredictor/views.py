@@ -90,6 +90,11 @@ class GetActiveBuses(View):
 
 	response = []
 	for activeBus in activeBuses:
+            response.append([
+                activeBus.patente, 
+                activeBus.servicio, 
+                activeBus.servicio_usuario])
+            """
 	    response.append({
                 'licencePlate': activeBus.patente, 
                 'authRoute': activeBus.servicio, 
@@ -107,6 +112,7 @@ class GetActiveBuses(View):
                 #'type': activeBus.tipo,
                 #'capacity': activeBus.capacidad
                 })
+            """
 
 	return JsonResponse(response, safe=False)
 
