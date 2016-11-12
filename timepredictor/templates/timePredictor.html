@@ -51,7 +51,7 @@
                         </div>
                         <div class="panel-body">
                             <div class="form-inline">
-                            <input id="licencePlate" type="text" class="form-control" placeholder="Ingresar patente .... CJRS-60">
+                            <input id="licencePlate" type="text" class="form-control" placeholder="Ingresar patente...">
                             <input type="button" id="seeBuses" value="Visualizar buses" class="btn btn-default" /> 
                             </div>
                         </div>
@@ -95,8 +95,8 @@
 		       var stop = DTPM.data.busStop[stopCode];
 		       var marker = L.marker([stop.latitude, stop.longitude], {
                            icon: L.divIcon({
-		               iconSize: new L.Point(50, 50), 
-			       html: '<h6>'+ arrivedEstimatedTime + '</h6>'
+		               iconSize: new L.Point(),//(82, 20), 
+			       html: '<h6><b>'+ arrivedEstimatedTime + '<sub>' + stopCode + '</sub></b></h6>'
 			   })
 		       });
 		       stopsLayer.addLayer(marker);
@@ -110,8 +110,10 @@
                     // 0 = Norte, 1 = Noreste, 2 = Este, 3 = Sureste, 4 = Sur, 5 = Suroeste, 6 = Oeste, 7 = Noroeste 
                     $.each(data, function(i, v){
                         // draw bus stops related to service 
-		        route = v.userRoute.substr(0, v.userRoute.length-1);
-			direction = v.userRoute.substr(-1);
+	                var aux = v.userRoute.split('_')[0]
+		        var route = aux.substr(0, aux.length-1);
+			var direction = aux.substr(-1);
+			console.log("route: " + route + " Direction: " + direction);
                         //stopsLayer = DTPM.drawStopsForService(stopsLayer, route, direction);
 
                         //removes prevevius bus
@@ -160,14 +162,14 @@
                         busLayer.addLayer(marker);
 
                         /* ADD ROUTE PATH*/
-                        var routes = DTPM.getRoutes([v.userRoute]);
+                        var routes = DTPM.getRoutes([route+direction]);
                         routeLayer = DTPM.drawRoutes(routeLayer, routes);
 
                         var line = [];
                         $.each(routes[0].route, function(i, v){
                            line.push([v.latitud, v.longitud]); 
                         });
-
+                        
 		        routeWithArrows = L.polylineDecorator(line, {
 			    patterns: [
                              {offset: 0, 
