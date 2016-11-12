@@ -79,4 +79,35 @@ class GetBusPosition(View):
 
 	return JsonResponse(response, safe=False)
 
+class GetActiveBuses(View):
+    '''This class requests to the database the buses are doing a trip '''
+
+    def __init__(self):
+	self.context={}
+
+    def get(self, request):
+        activeBuses = UltimosGps.objects.order_by('patente', 'servicio').distinct('patente', 'servicio')
+
+	response = []
+	for activeBus in activeBuses:
+	    response.append({
+                'licencePlate': activeBus.patente, 
+                'authRoute': activeBus.servicio, 
+                'userRoute': activeBus.servicio_usuario, 
+                #'distOnroute': activeBus.dist_en_ruta, 
+                #'distToRoute': activeBus.dist_a_ruta, 
+                #'InstVelocity': activeBus.velocidad_instantanea, 
+                #'velocity2GPS': activeBus.velocidad_2gps, 
+                #'velocity4GPS': activeBus.velocidad_4gps, 
+                #'operator': activeBus.operador, 
+                #'latitude': activeBus.latitud, 
+                #'longitude': activeBus.longitud, 
+                #'time': activeBus.tiempo,
+                #'orientation': activeBus.orientacion,
+                #'type': activeBus.tipo,
+                #'capacity': activeBus.capacidad
+                })
+
+	return JsonResponse(response, safe=False)
+
 
