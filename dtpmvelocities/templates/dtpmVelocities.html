@@ -1,0 +1,269 @@
+<!doctype html>
+{% load static %}
+<html class="no-js" lang="es">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<title>Velocidades</title>
+<meta name="description" content="Velocidades por tramo">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<!-- Place favicon.ico in the root directory -->
+
+<link rel="stylesheet" href="{% static "css/normalize.css" %}">
+<link rel="stylesheet" href="{% static "css/main.css" %}">
+<script src="{% static "js/vendor/modernizr-2.8.3.min.js" %}"></script>
+
+<!-- leaflet -->
+<link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+
+<!-- bootstrap -->
+<link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}"/>
+<link rel="stylesheet" href="{% static "css/bootstrap-theme.min.css" %}" />
+
+<style>
+.nav-pills li {
+    margin-top: 3px; //use whatever you want
+} 
+</style>
+</head>
+<body>
+<!--[if lt IE 8]>
+<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+<![endif]-->
+
+<!-- Add your site or application content here -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <HR>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id="mapid" style="height: 540px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">                    
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Velocidades por tramo</h3>
+                </div>
+                <div class="panel-body">
+                    Procedimiento:
+                    <ul>
+                        <li>Desplazar el mapa al área de interés.</li>
+                        <li>Seleccionar el servicio base de la lista que aparece a la derecha del mapa.</li>
+                        <li>Seleccionar los servicios asociados al base</li>
+                        <li>Dibujar los tramos de velocidad en el mapa.</li>
+                        <li>Presionar el botón 'calcular velocidades'</li>
+                        <li>Enjoy!</li>
+                    </ul>
+                    <hr>
+                    <h5>Seleccionar servicio base:</h5>
+                    <ul id="baseService" class="nav nav-pills well">
+                    </ul>
+                    <hr>
+                    <h5>Seleccionar servicio a considerar en la velocidades:</h5>
+                    <ul id="parameterServices" class="nav nav-pills well">
+                    </ul>
+                </div>
+                <div class="panel-footer">
+                    <input type="button" id="CalculateVelocities" value="Calcular velocidad" class="btn btn-default" /> 
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static "js/vendor/jquery-1.12.0.min.js" %}"></script>
+<script src="{% static "js/plugins.js" %}"></script>
+<script src="{% static "js/main.js" %}"></script>
+<script src="{% static "js/bootstrap.min.js" %}"></script>
+<script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+<!--<script src="js/Leaflet.textpath.js"></script> -->
+<script src="{% static "js/Leaflet.GTFS.js" %}"></script>
+<script src="{% static "js/Leaflet.polylineDecorator.js" %}"></script>
+<script src="{% static "js/Leaflet.Editable.js" %}"></script>
+<!--<script src="js/Leaflet.textpath.js"></script> -->
+
+<script>
+$(document).ready(function() {
+        /**
+         * SET MAP
+         */
+        var baseServiceTagId = "baseService";
+        var paramServiceTagId = "parameterServices";
+        var pillBaseServiceClass = "baseService";
+        var pillParamServiceClass = "parameterService";
+
+        var cellAreaLayer = L.layerGroup([]);
+        var busStopsLayer = L.layerGroup([]);
+        var routesLayer = L.layerGroup([]);
+        var baseServiceRoute = L.layerGroup([]);
+        var paramRoutesLayer = L.layerGroup([]);
+
+        var beauchefLocation = L.latLng(-33.457910, -70.663869);
+        var map = L.map('mapid', {editable: true}).setView(beauchefLocation, 15);
+
+        // extend PolylineObject to give the distance between points
+        L.Polyline = L.Polyline.extend({
+            getDistance: function() {
+                // distance in meters
+                var points = this._latlngs,
+                distances = [],
+                length = points.length;
+                for (var i = 1; i < length; i++) {
+                    distances.push(points[i].distanceTo(points[i - 1]));
+                }
+ 
+                return distances;
+            }
+        });
+ 
+        /*
+           Add button to draw a polyline
+        */
+        L.EditControl = L.Control.extend({
+            options: {
+                position: 'topleft',
+                callback: null,
+                kind: '',
+                html: ''
+            },
+            onAdd: function (map) {
+                var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar'),
+                link = L.DomUtil.create('a', '', container);
+
+                link.href = '#';
+                link.title = 'Create a new ' + this.options.kind;
+                link.innerHTML = this.options.html;
+                L.DomEvent.on(link, 'click', L.DomEvent.stop)
+                .on(link, 'click', function () {
+                    window.LAYER = this.options.callback.call(map.editTools);
+                }, this);
+
+                return container;
+            }
+        });
+
+        L.NewLineControl = L.EditControl.extend({
+            options: {
+                position: 'topleft',
+                callback: map.editTools.startPolyline,
+                kind: 'line',
+                html: '\\/\\'
+            }
+        });
+
+        map.addControl(new L.NewLineControl());
+
+        DTPM.setLayerControl(map);
+
+        /**
+        * LOAD DATA
+        */
+        DTPM.loadData(function(){
+
+            // set on moveend event
+            var onMoveEnd = function(e) {
+
+            var map = e.target;
+            var center = map.getCenter();
+            var gridId = DTPM.getCellId(center);
+            var services = DTPM.getServices(gridId);
+            var routes = DTPM.getRoutes(services);
+
+            // draw cell area
+            map.removeLayer(cellAreaLayer);
+            cellAreaLayer = L.layerGroup([gridId.cellArea]);
+            map.addLayer(cellAreaLayer);
+
+	    /*
+            // draw bus stops
+            var busStops = []
+            $.each(DTPM.data.busStop, function(key, value){
+                var location = L.latLng(value.latitude, value.longitude)
+                busStops.push(L.marker(location));
+            });
+            busStopsLayer = L.layerGroup(busStops);
+            map.addLayer(busStopsLayer);
+            */
+            routesLayer = DTPM.drawRoutes(routesLayer, routes);
+            routesLayer.addTo(map);
+
+            // base line
+            DTPM.drawlistServices(baseServiceTagId, pillBaseServiceClass, services);
+            // services params
+            DTPM.drawlistServices(paramServiceTagId, pillParamServiceClass, services);
+
+            // add click event each base service pill 
+            $('.'+pillBaseServiceClass).click(function(){
+                var service = $(this).data('service');
+                var routes = DTPM.getRoutes([service]);
+
+                // remove routes retrieved with filter
+                map.removeLayer(routesLayer);
+
+                baseServiceRoute = DTPM.drawRoutes(baseServiceRoute, routes);
+		baseServiceRoute.addTo(map);
+
+                // disable event onmoveend
+                map.off('moveend', onMoveEnd);
+                // hide cell area
+                map.removeLayer(cellAreaLayer);
+            });
+
+            // add click event each parameter service pill 
+            $('.'+pillParamServiceClass).click(function(){
+                $(this).toggleClass('active');
+
+                var services = [];
+                $('.' + pillParamServiceClass + '.active').each(function(i, pill){
+                    services.push($(this).data('service'));
+                });
+                var routes = DTPM.getRoutes(services);
+                paramRoutesLayer = DTPM.drawRoutes(paramRoutesLayer, routes);
+		paramRoutesLayer.addTo(map);
+            });
+            };
+
+            map.on('moveend', onMoveEnd);
+            // simulate map movement
+            onMoveEnd({target: map});
+            /*
+            var polyline;
+            var points = [];
+            // set on click event
+            function onMapClick(e) {
+                if (polyline == null) {
+                    polyline = L.polyline({}, {color: 'red', smoothFactor: 5.0}).addTo(map);
+                }
+                polyline.addLatLng(e.latlng)
+                points.push(e.latlng)
+                // necesito saber cual fue el punto que moví
+                // add marker with position 
+                L.marker(e.latlng, 
+                    {draggable: true}).on('drag', function(e){
+                        var marker = e.target;
+                        $.each(points, function(i, v) {
+                            console.log("asd");
+                            if (v == marker) {
+                                v.setLatLng(marker.getLatLng());
+                            }
+                        });
+                        polyline.setLatLngs(points);
+                   }).addTo(map)
+                .bindPopup("" + e.latlng);
+            }
+            map.on('click', onMapClick);
+         */
+	}, "{% static ""%}");
+});
+</script>
+</body>
+</html>
+

@@ -25,4 +25,5 @@ urlpatterns = [
     url(r'^similarservices/', include('similarservices.urls')),
     url(r'^timePredictor/', include('timepredictor.urls')),
     url(r'^transappBusPosition/', include('transappbusposition.urls')),
+    url(r'^dtpmVelocities/', include('dtpmvelocities.urls')),
 ]

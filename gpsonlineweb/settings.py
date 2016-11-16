@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'similarservices',
     'timepredictor',
     'transappbusposition',
+    'dtpmvelocities',
 ]
 
 MIDDLEWARE = [
