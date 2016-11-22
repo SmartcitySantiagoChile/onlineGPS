@@ -60,10 +60,10 @@ class GetEstimatedBusPosition(View):
             response['machine'] = {}
 	    response['machine']['licencePlate'] = licencePlate#closestTime.patente
             response['machine']['route'] = closestTime.servicio
-	    response['machine']['time'] = closestTime.tiempo
-            response['machine']['position'] = {}
-            response['machine']['position']['latitude'] = closestTime.latitud
-            response['machine']['position']['longitude'] = closestTime.longitud
+            response['nearestGpsPoint'] = {}
+            response['nearestGpsPoint']['latitude'] = closestTime.latitud
+            response['nearestGpsPoint']['longitude'] = closestTime.longitud
+	    response['nearestGpsPoint']['time'] = closestTime.tiempo
 
         except Exception as e:
             response['error'] = True
