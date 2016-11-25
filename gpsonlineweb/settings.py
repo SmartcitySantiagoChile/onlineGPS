@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'timepredictor',
     'transappbusposition',
     'dtpmvelocities',
+    'drawroute',
 ]
 
 MIDDLEWARE = [
