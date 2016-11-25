@@ -16,6 +16,6 @@ class IndexHandler(View):
 	self.context={}
 
     def get(self, request):
-        template = "index.html"
+        template = "similarservices.html"
 
 	return render(request, template, self.context)
