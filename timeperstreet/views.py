@@ -64,20 +64,25 @@ class GetPOIData(View):
         """ the {quantity} bus stops with most waiting time for a bus """
         points = OrigenYDestinoEjes15Min.objects.all().order_by('eje')
 
+        dest = 'Destination'
         response = {}
-        POIs = []
+        response[dest] = {}
         for point in points:
+            if not point.destino in response[dest]:
+                response[dest][point.destino] = {}
+            if not point.zona in response[dest][point.destino]:
+                response[dest][point.destino][point.zona] = {}
+            if not point.eje in response[dest][point.destino][point.zona]:
+                response[dest][point.destino][point.zona][point.eje] = []
             aux = {}
-            aux['street'] = point.eje
+            aux = {}
             aux['origin'] = point.hito_origen
             aux['destination'] = point.hito_destino
-            aux['zone'] = point.zona
-            aux['zoneGoal'] = point.destino
             aux['name'] = point.nombre
             aux['latitude'] = point.latitud
             aux['longitude'] = point.longitud
-            POIs.append(aux)
-        response['POIs'] = POIs
+            
+            response[dest][point.destino][point.zona][point.eje].append(aux)
  
         return JsonResponse(response, safe=False)
 

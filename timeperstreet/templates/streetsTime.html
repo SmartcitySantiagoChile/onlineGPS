@@ -277,9 +277,17 @@
                     this._div.innerHTML = '<h4>Tiempo por eje</h4>' + 
                         '<b>Muestra los tiempos de viaje</b>' + 
                         '<br /> Los datos consideran la velocidad ' + 
-			'<br /> de los buses de los últimos 15 minutos.' +
+			'<br /> de los buses de los últimos 15 minutos ' +
                         '<br /> que recorren las calles señaladas.' + 
-                        '<br /><select id="drawType" class="form-control"><option value="1">Línea</option><option value="2" selected=selected>Patrón</option><option value="3">Calor</option></select>';
+                        '<br /><h4>Seleccionar tipo de representación</h4>' + 
+                        '<br /><select id="drawType" class="form-control">' + 
+			    '<option value="1">Línea</option>' + 
+			    '<option value="2" selected=selected>Patrón</option>' + 
+			    '<option value="3">Calor</option>' + 
+			'</select>' +
+                        '<br /><h4>Indicar destino</h4>' + 
+                        '<select id="destination" class="form-control">' + 
+			'</select>';
                     return this._div;
                 };
                 info.addTo(map);
@@ -508,10 +516,15 @@
 		    return overlay;
                 };
  
+		// Add poits of interest to map
+                var POIsOverlay = L.layerGroup([]);
+		POIsOverlay.addTo(map);
+                mapControl.addOverlay(POIsOverlay, 'POIs');
+
                 function drawPOIs(data) {
                     
-                    var POIsOverlay = L.layerGroup([]);
-
+		    POIsOverlay.clearLayers();
+                    
                     $.each(data, function(i, poi){
                         var paramName = "Nombre: " + poi.name;
                         //var paramOrigin = "Origen: " + poi.origin;
@@ -534,9 +547,6 @@
                         }).bindPopup("<p>" + params + "</p>");
                         POIsOverlay.addLayer(marker);
                     });
-
-                    POIsOverlay.addTo(map);
-                    mapControl.addOverlay(POIsOverlay, 'POIs');
 
                     console.log("Map updated with POIs");
                 }
@@ -593,11 +603,31 @@
 			return layer;
                     };
 
-                    var rawPOIsData = [];
-                    var rawData = [];
+		    var streetsData = {};
+		    var getStreetData = function() {
+                        var destination = $("#destination option:selected").val();
+                        return streetsData[destination];
+		    }
+
+		    var poisData = {};
+		    var getPoisData = function() {
+                        var destination = $("#destination option:selected").val();
+                        var origins = poisData[destination];
+			var pois = [];
+
+			$.each(origins, function (i, origin){
+			    $.each(origin, function (name, points){
+			        pois = pois.concat(points);
+			    });
+			});
+                        
+			return pois;
+                    }
+
                     $.ajax({
                         url: "getStreetData",
                         success: function(data){
+			    /*
                             //TODO: dar formato cn opciones de destino y zona
                             Norte     = data.Destination.Centro.Norte;
                             Poniente1 = data.Destination.Centro.Poniente1;
@@ -606,20 +636,32 @@
                             Sur       = data.Destination.Centro.Sur;
 
                             rawData = $.extend({}, Norte, Poniente1, Poniente2, Oriente, Sur);
-                            rawData = data.Destination.Centro;
-                            updateMap(rawData);
+			    */
+			    streetsData = data.Destination;
+
+			    // define destination options in select
+                            $.each(streetsData, function(dest, v){
+			        $('#destination').append('<option value="' + dest + '">' + dest + '</option>');
+		            });
 
                             $('#drawType').change(function(){
-                                updateMap(rawData);
+                                updateMap(getStreetData());
+                                drawPOIs(getPoisData());
+                            });
+                            $('#destination').change(function(){
+                                updateMap(getStreetData());
+                                drawPOIs(getPoisData());
                             });
 
                             $.ajax({
                                 url: "getPOIData",
                                 success: function(data){
-                                    rawPOIsData = data.POIs;
-                                    drawPOIs(rawPOIsData);
+                                    poisData = data.Destination;
+                                    drawPOIs(getPoisData());
                                 }
                             });
+
+                            updateMap(getStreetData());
                         }
                     });
                     
