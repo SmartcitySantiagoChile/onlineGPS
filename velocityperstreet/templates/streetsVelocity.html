@@ -213,7 +213,15 @@
                         '<b>Muestra de las velocidades presente en los ejes principales de Santiago de chile</b>' + 
                         '<br /> Los datos mostrados consideran la velocidad de los buses de los últimos 15 minutos.' +
                         '<br /> que recorren las calles señaladas.' + 
-                        '<br /><select id="drawType" class="form-control"><option value="1">Línea</option><option value="2">Patrón</option><option value="3">Calor</option></select>';
+                        '<br /><br /><h5>Representación</h5>' + 
+                        '<select id="drawType" class="form-control">' + 
+			    '<option value="1">Línea</option>' + 
+			    '<option value="2">Patrón</option>' + 
+			    '<option value="3">Calor</option>' + 
+			'</select>' + 
+			'<br /><h5>Indicar destino</h5>' +
+			'<select id="destination" class="form-control">' +
+			'</select>';
                     return this._div;
                 };
                 info.addTo(map);
@@ -411,9 +419,13 @@
 		    return overlay;
                 };
  
+                var POIsOverlay = L.layerGroup([]);
+                POIsOverlay.addTo(map);
+                mapControl.addOverlay(POIsOverlay, 'POIs');
+
                 function drawPOIs(data) {
                     
-                    var POIsOverlay = L.layerGroup([]);
+		    POIsOverlay.clearLayers();
 
                     $.each(data, function(i, poi){
                         var paramName = "Nombre: " + poi.name;
@@ -437,9 +449,6 @@
                         }).bindPopup("<p>" + params + "</p>");
                         POIsOverlay.addLayer(marker);
                     });
-
-                    POIsOverlay.addTo(map);
-                    mapControl.addOverlay(POIsOverlay, 'POIs');
 
                     console.log("Map updated with POIs");
                 }
@@ -495,26 +504,57 @@
 
 			return layer;
                     };
+		    
+		    var streetsData = {};
+		    var getStreetData = function() {
+		        var destination = $("#destination option:selected").val();
+		        return streetsData[destination];
+		    }
+		
+		    var poisData = {};
+		    var getPoisData = function() {
+		        var destination = $("#destination option:selected").val();
+		        var origins = poisData[destination];
+		        var pois = [];
+		
+			$.each(origins, function (i, origin){
+		            $.each(origin, function (name, points){
+		                pois = pois.concat(points);
+		            });
+		        });
+		
+                        return pois;
+                    }
 
-                    var rawPOIsData = [];
-                    var rawData = [];
                     $.ajax({
                         url: "getStreetData",
                         success: function(data){
-                            rawData = data.Destination.Centro;
-                            updateMap(rawData);
+                            streetsData = data.Destination;
+
+			    // define destination options in select
+			    $.each(streetsData, function(dest, v){
+			        $('#destination').append('<option value="' + dest + '">' + dest + '</option>');
+			    });
 
                             $('#drawType').change(function(){
-                                updateMap(rawData);
+                                updateMap(getStreetData());
+                                drawPOIs(getPoisData());
                             });
+			    
+			    $('#destination').change(function(){
+			        updateMap(getStreetData());
+			        drawPOIs(getPoisData());
+			    });
 
                             $.ajax({
                                 url: "getPOIData",
                                 success: function(data){
-                                    rawPOIsData = data.POIs;
-                                    drawPOIs(rawPOIsData);
+                                    poisData = data.Destination;
+                                    drawPOIs(getPoisData());
                                 }
                             });
+
+                            updateMap(getStreetData());
                         }
                     });
                     
