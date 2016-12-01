@@ -529,7 +529,16 @@
                     $.ajax({
                         url: "getStreetData",
                         success: function(data){
+
+                            // Add option to see all streets together
+                            var all = {};
+                            $.each(data.Destination, function(i,origin){
+                                $.each(origin, function(i,v){
+                                    all = $.extend(all, v);
+                                });
+                            });
                             streetsData = data.Destination;
+                            streetsData = $.extend(data.Destination,{'Todos': {'Todos': all}});
 
 			    // define destination options in select
 			    $.each(streetsData, function(dest, v){
