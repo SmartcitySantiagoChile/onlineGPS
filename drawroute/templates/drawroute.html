@@ -21,6 +21,9 @@
         <!-- bootstrap -->
         <link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}"/>
         <link rel="stylesheet" href="{% static "css/bootstrap-theme.min.css" %}" />
+
+	<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+
         <style>
         html, body, .container-fluid {
             height: 100%;
@@ -40,6 +43,11 @@
             <div class="row" style="height: 100%">
                 <div class="col-md-3">
                     <HR>
+                    <div class="panel panel-default" >
+		        <div class="panel-body">
+			    <input id="toggle" type="checkbox" data-toggle="toggle" data-on="´Código DTPM" data-off="Código usuario" data-size="large" data-width="100%">
+			</div>
+		    </div>
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <h3 class="panel-title">Secuencia de viaje</h3>
@@ -61,13 +69,14 @@
         <script src="{% static "js/plugins.js" %}"></script>
         <script src="{% static "js/main.js" %}"></script>
         <script src="{% static "js/bootstrap.min.js" %}"></script>    
+	<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
         <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
         <!--<script src="js/Leaflet.textpath.js"></script> -->
         <script src="{% static "js/Leaflet.GTFS.js" %}"></script>
         <script src="{% static "js/Leaflet.polylineDecorator.js" %}"></script>
 
         <script>
-            $(document).ready(function() { 
+            $(document).ready(function() {
                 /**
                  * SET MAP
                  */
@@ -75,83 +84,90 @@
                 var map = L.map("mapid", {editable: true}).setView(beauchefLocation, 15);
                 DTPM.setLayerControl(map);
 
-		var stepLayers = {};
+                var stepLayers = {};
 
                 /**
                  * LOAD DATA
                  */
-                DTPM.loadData(function(){
-                 /*
-                 function to add a new step
-                 */
-                 addNewStep = function() {
-                     var container = $('#steps');
-                     var newId= container.children().length + 1;
+                DTPM.loadData(function() {
 
-                     var row = '<div class="form-inline" data-id="' + newId + '"><input value="PA453" name="firstStop" type="text" class="form-control input-sm" placeholder="PA33"><input value="PA434" name="lastStop" type="text" class="form-control input-sm" placeholder="PI433"><input value="506I" name="service" type="text" class="form-control input-sm" placeholder="506"><button name="seeStep" class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button><button name="removeStep" class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></div>';
+                        $.getJSON("{% static "data/dict.json" %}", function(dict) {
+                                /*
+                                function to add a new step
+                                */
+                                addNewStep = function() {
+                                    var container = $('#steps');
+                                    var newId = container.children().length + 1;
 
-                     container.append(row);
-                     $('button[name = "removeStep"]').click(removeStep);
-                     $('button[name = "seeStep"]').click(seeStep);
+                                    var row = '<div class="form-inline" data-id="' + newId + '"><input value="PA453" name="firstStop" type="text" class="form-control input-sm" placeholder="PA33"><input value="PA434" name="lastStop" type="text" class="form-control input-sm" placeholder="PI433"><input value="506I" name="service" type="text" class="form-control input-sm" placeholder="506"><button name="seeStep" class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button><button name="removeStep" class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></div>';
 
-		     stepLayers[newId] = L.layerGroup([]);
-		     map.addLayer(stepLayers[newId]);
+                                    container.append(row);
+                                    $('button[name = "removeStep"]').click(removeStep);
+                                    $('button[name = "seeStep"]').click(seeStep);
 
-                     console.log('row added');
-                  }
+                                    stepLayers[newId] = L.layerGroup([]);
+                                    map.addLayer(stepLayers[newId]);
 
-                  removeStep = function() {
-                      var parent = $(this).parent('.form-inline');
-		      var id = parent.data('id');
+                                    console.log('row added');
+                                }
 
-		      map.removeLayer(stepLayers[id]);
-                      delete stepLayers[id];
+                                removeStep = function() {
+                                    var parent = $(this).parent('.form-inline');
+                                    var id = parent.data('id');
 
-                      parent.remove();
+                                    map.removeLayer(stepLayers[id]);
+                                    delete stepLayers[id];
 
-                      console.log('row removed');
-                  }
+                                    parent.remove();
 
-                  seeStep = function() {
-                      var parent = $(this).parent('.form-inline');
-		      var id                   = parent.data('id');
-                      var firstStop            = parent.children('input[name="firstStop"]').val();
-                      var lastStop             = parent.children('input[name="lastStop"]').val();
-                      var serviceWithDirection = parent.children('input[name="service"]').val();
+                                    console.log('row removed');
+                                }
 
-                      console.log('step ' + id +': ' + firstStop + ' -> ' + serviceWithDirection + ' -> ' + lastStop);
+                                seeStep = function() {
+                                    var parent = $(this).parent('.form-inline');
+                                    var id = parent.data('id');
+                                    var firstStop = parent.children('input[name="firstStop"]').val();
+                                    var lastStop = parent.children('input[name="lastStop"]').val();
+                                    var serviceWithDirection = parent.children('input[name="service"]').val();
 
-		      DTPM.drawStops(stepLayers[id], [firstStop, lastStop]);
+				    if ($("#toggle").prop('checked')) {
+                                        firstStop = dict[firstStop];
+                                        lastStop = dict[lastStop];
+				    }
 
-                      var routes = DTPM.getRoutes([serviceWithDirection]);
-                      var section = DTPM.drawPartOfRoute(stepLayers[id], serviceWithDirection, firstStop, lastStop);
+                                    console.log('step ' + id + ': ' + firstStop + ' -> ' + serviceWithDirection + ' -> ' + lastStop);
 
-		      var serviceWithoutDir = serviceWithDirection.substring(0, serviceWithDirection.length - 1);
-		      // addd arrows
-		      stepLayers[id].addLayer(L.polylineDecorator(section, {
-                          patterns: [
-			      {offset: 0,
-			       endOffset: 0,
-			       repeat: '40',
-			       symbol: L.Symbol.arrowHead(
-			          {pixelSize: 10,
-			           polygon: true,
-			           pathOptions: {
-			               fillOpacity: 1,
-			               color: DTPM.getRouteColor(serviceWithoutDir),
-			               stroke: true}
-			          })
-			      }
-			  ]
-	              }));
+                                    DTPM.drawStops(stepLayers[id], [firstStop, lastStop]);
 
-                      console.log('row drawn');
-                  } 
+                                    var routes = DTPM.getRoutes([serviceWithDirection]);
+                                    var section = DTPM.drawPartOfRoute(stepLayers[id], serviceWithDirection, firstStop, lastStop);
 
-                  $('#addStep').click(addNewStep);
+                                    var serviceWithoutDir = serviceWithDirection.substring(0, serviceWithDirection.length - 1);
+                                    // addd arrows
+                                    stepLayers[id].addLayer(L.polylineDecorator(section, {
+                                        patterns: [{
+                                            offset: 0,
+                                            endOffset: 0,
+                                            repeat: '40',
+                                            symbol: L.Symbol.arrowHead({
+                                                pixelSize: 10,
+                                                polygon: true,
+                                                pathOptions: {
+                                                    fillOpacity: 1,
+                                                    color: DTPM.getRouteColor(serviceWithoutDir),
+                                                    stroke: true
+                                                }
+                                            })
+                                        }]
+                                    }));
 
-                }, "{% static ""%}");
-            });
-        </script>
+                                    console.log('row drawn');
+                                }
+
+                                $('#addStep').click(addNewStep);
+                            });
+                    }, "{% static ""%}");
+            });        
+	</script>
     </body>
 </html>
