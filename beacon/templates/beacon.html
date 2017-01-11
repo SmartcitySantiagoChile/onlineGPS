@@ -1,15 +1,94 @@
 <!DOCTYPE html>
+{% load static %}
 <html>
 <head>
     <meta charset=utf-8 />
     <title>Beacon test</title>
-    <link rel="stylesheet" type="text/css" media="screen" href="css/master.css" />
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
     <!--[if IE]>
         <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <!-- Load c3.css -->
+    <link href="{% static "components/c3/c3.css" %}" rel="stylesheet" type="text/css">
+    <link href="{% static "components/bootstrap/dist/css/bootstrap.min.css" %}" rel="stylesheet" type="text/css">
+    <style>
+        html, body, .container-fluid {
+            height: 100%;
+        }
+    </style>
 </head>
 <body>
+    <div class="container-fluid">
+        <div class="row" style="height: 100%">
+            <div class="col-md-3">
+                <HR>
+                <div class="panel panel-default">
+                <div class="panel-heading">
+	            <h3 class="panel-title">Ventana de tiempo</h3>
+	        </div>
+	        <div class="panel-body">
+	            <div class="form-inline">
+	                <input id="start" type="text" class="form-control" placeholder="feche-hora">
+	                <input id="end" type="text" class="form-control" placeholder="feche-hora">
+	                <input type="button" id="update" value="Actualizar gráfico" class="btn btn-default" /> 
+	            </div>
+	        </div>
+	    </div>
+            <table id="table" class="display" width="100%">
+	    </table>
+	</div>
+	<div class="col-md-9" style="height: 100%;min-height: 100%">
+	    <div id="chart" style="height: 100%;min-height: 100%"></div>
+	<div>
+    </div>
+ 
+    <!-- Load d3.js and c3.js -->
+    <script src="{% static "components/d3/d3.min.js"%}" charset="utf-8"></script>
+    <script src="{% static "components/c3/c3.min.js" %}"></script>
+    <script src="{% static "components/jquery/dist/jquery.min.js" %}"></script>
+    <script src="{% static "components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
+    <script>
+        var chart = c3.generate({
+	    bindto: '#chart',
+            data: {
+                columns: [
+                    ['sample', 30, 200, 100, 400, 150, 250]
+                ]
+            },
+            grid: {
+                x: {
+                   lines: [
+                       {value: 1, text: 'Lable 1'},
+                       {value: 3, text: 'Lable 3', position: 'middle'},
+                       {value: 4.5, text: 'Lable 4.5', position: 'start'}
+                   ]
+                }
+            }
+        });
 
+        var update = function() {
+            var start = $('#start').val();
+            var end = $('#end').val();
+
+	    $.get('getBeaconsData', 
+	        {'start': start, 'end': end}, 
+		function(data){
+                chart.load({
+		    columns: [
+                        ['x', 1,2,3,4]
+	            ]	    
+		});
+	    });
+	    $.get('getEventsData', 
+	        {'start': start, 'end': end}, 
+		function(data){
+		chart.xgrids.add([
+	            {value: 2, text: 'Label 2'},
+		    {value: 4, text: 'Label 4'}
+		]);
+            });
+	}
+
+        $('#update').click(update);
+    </script>
 </body>
 </html>
