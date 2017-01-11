@@ -33,6 +33,13 @@ class BeaconTestCase(TestCase):
 
         return response
 
+    def printJson(self, jsonResponse):
+
+        print json.dumps(jsonResponse, 
+                sort_keys=True, 
+                indent=4, 
+                separators=(',', ': '))
+ 
     def setUp(self):
         """ save initial data on database """
 
@@ -83,7 +90,7 @@ class BeaconTestCase(TestCase):
             {"Time":"2017-01-09 14:36:00","Event":"Esto es una prueba"},
             {"Time":"2017-01-09 14:36:05","Event":"Esto es otra prueba"}
         ]}"""
-    
+ 
         self.response = self.makePostRequest('save', {'data': jsonData})
 
     def testSaveJsonData(self):
@@ -119,13 +126,22 @@ class BeaconTestCase(TestCase):
 
         jsonResponse = json.loads(response.content)
 
-        #print json.dumps(jsonResponse, 
-        #        sort_keys=True, 
-        #        indent=4, 
-        #        separators=(',', ': '))
-
         self.assertEqual(len(jsonResponse), 1)
         self.assertEqual(len(jsonResponse[0]['log']), 5)
+
+    def testGetChartData(self):
+
+        start = '2017-01-09 14:36:00'
+        end   = '2017-01-09 14:37:00'
+        url = 'getChartData'
+        
+        response = self.makeGetRequest(url, {'start':start,'end':end})
+
+        jsonResponse = json.loads(response.content)
+      
+        self.assertEqual(len(jsonResponse['columns']), 4)
+        self.assertEqual(len(jsonResponse['xs']), 2)
+        self.assertEqual(len(jsonResponse['events']), 2)
 
     def testPlot(self):
 

@@ -22,23 +22,24 @@
             <div class="col-md-3">
                 <HR>
                 <div class="panel panel-default">
-                <div class="panel-heading">
-	            <h3 class="panel-title">Ventana de tiempo</h3>
-	        </div>
-	        <div class="panel-body">
-	            <div class="form-inline">
-	                <input id="start" type="text" class="form-control" placeholder="feche-hora">
-	                <input id="end" type="text" class="form-control" placeholder="feche-hora">
-	                <input type="button" id="update" value="Actualizar gráfico" class="btn btn-default" /> 
-	            </div>
-	        </div>
-	    </div>
-            <table id="table" class="display" width="100%">
-	    </table>
-	</div>
-	<div class="col-md-9" style="height: 100%;min-height: 100%">
-	    <div id="chart" style="height: 100%;min-height: 100%"></div>
-	<div>
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Ventana de tiempo</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-inline">
+                            <input id="start" type="text" class="form-control" placeholder="feche-hora" 
+                                value="2017-01-09 14:36:00">
+                            <input id="end" type="text" class="form-control" placeholder="feche-hora"
+                                value="2017-01-09 14:37:00">
+                            <input type="button" id="update" value="Actualizar gráfico" class="btn btn-default" /> 
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9" style="height: 100%;min-height: 100%">
+                <div id="chart" style="height: 100%;min-height: 100%"></div>
+            <div>
+        </div>
     </div>
  
     <!-- Load d3.js and c3.js -->
@@ -47,47 +48,70 @@
     <script src="{% static "components/jquery/dist/jquery.min.js" %}"></script>
     <script src="{% static "components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
     <script>
+        /*
+         *  CHART
+         */
         var chart = c3.generate({
-	    bindto: '#chart',
+            bindto: '#chart',
             data: {
+	        xs:{'as':'x'},
                 columns: [
-                    ['sample', 30, 200, 100, 400, 150, 250]
-                ]
+		    ['as',1,2,3],
+		    ['x',1,2,3]
+                ],
+		xFormat: '%Y-%m-%d %H:%M:%S',
             },
-            grid: {
+            axis: {
                 x: {
-                   lines: [
-                       {value: 1, text: 'Lable 1'},
-                       {value: 3, text: 'Lable 3', position: 'middle'},
-                       {value: 4.5, text: 'Lable 4.5', position: 'start'}
-                   ]
-                }
-            }
+                    type: "timeseries",
+                    tick: {
+                        format: '%H:%M:%S',
+			rotate: -75,
+			multiline: false
+		    },
+                    label: {
+		        text: 'Hora[HH:MM:SS]'
+		    },
+		    height: 80
+                },
+		y: {
+                    label: {
+	                text: 'RSSI',
+                        position: 'outer',
+	            }
+		}
+            },
+	    lables: true,
         });
 
+        /*
+         *  UPDATE CHART
+         */
         var update = function() {
+	    console.log('updating chart...');
             var start = $('#start').val();
             var end = $('#end').val();
 
-	    $.get('getBeaconsData', 
-	        {'start': start, 'end': end}, 
-		function(data){
+            $.get('getChartData', {'start': start, 'end': end}, 
+            function(data){
+		console.log(data);
+		console.log(data['columns']);
+		console.log(data['xs']);
+                
                 chart.load({
-		    columns: [
-                        ['x', 1,2,3,4]
-	            ]	    
-		});
-	    });
-	    $.get('getEventsData', 
-	        {'start': start, 'end': end}, 
-		function(data){
-		chart.xgrids.add([
-	            {value: 2, text: 'Label 2'},
-		    {value: 4, text: 'Label 4'}
-		]);
+                    xs: data['xs'],
+                    colums: data['columns'],
+                    xFormat: '%Y-%m-%d %H:%M:%S',
+		    //unload: true,
+                });
+		chart.xgrids.add(data['events']);
+		console.log('chart updated');
             });
-	}
+        }
 
+        /*
+         *  ADD BEHAVIOR TO BUTTON
+         */
         $('#update').click(update);
     </script>
 </body>
