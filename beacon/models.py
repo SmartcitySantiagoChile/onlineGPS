@@ -20,6 +20,9 @@ class Beacon(models.Model):
         dict['minor'] = self.minor
         return dict
 
+    class Meta:
+        unique_together = ('uuid', 'major', 'minor')
+
 class BeaconLog(models.Model):
     time         = models.DateTimeField(null=False)
     rssi         = models.IntegerField(null=False)
