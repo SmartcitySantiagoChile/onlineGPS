@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'transappbusposition',
     'dtpmvelocities',
     'drawroute',
+    'beacon',
 ]
 
 MIDDLEWARE = [

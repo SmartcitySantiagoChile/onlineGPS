@@ -29,4 +29,5 @@ urlpatterns = [
     url(r'^transappBusPosition/', include('transappbusposition.urls')),
     url(r'^dtpmVelocities/', include('dtpmvelocities.urls')),
     url(r'^drawRoute/', include('drawroute.urls')),
+    url(r'^beacon/', include('beacon.urls')),
 ]
