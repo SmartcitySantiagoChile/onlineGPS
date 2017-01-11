@@ -15,7 +15,7 @@ class Beacon(models.Model):
     def getDict(self):
         dict = {}
         dict['macAddr'] = self.macAddr
-        dict['uuid'] = self.uuid
+        dict['uuid'] = str(self.uuid)
         dict['major'] = self.major
         dict['minor'] = self.minor
         return dict
