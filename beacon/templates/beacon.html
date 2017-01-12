@@ -26,13 +26,17 @@
                         <h3 class="panel-title">Ventana de tiempo</h3>
                     </div>
                     <div class="panel-body">
-                        <div class="form-inline">
+                        <div class="form-group">
+                            <label for="start">Inicio:</label>
                             <input id="start" type="text" class="form-control" placeholder="feche-hora" 
                                 value="2017-01-09 14:36:00">
+                        </div>
+                        <div class="form-group">
+                            <label for="end">Fin:</label>
                             <input id="end" type="text" class="form-control" placeholder="feche-hora"
                                 value="2017-01-09 14:37:00">
-                            <input type="button" id="update" value="Actualizar gráfico" class="btn btn-default" /> 
                         </div>
+                        <input type="button" id="update" value="Actualizar gráfico" class="btn btn-default" /> 
                     </div>
                 </div>
             </div>
@@ -129,9 +133,9 @@
 	    return dformat;
         }
 
-	var MINUTES = 1;
-	var dateStart = new Date();
-	var dateEnd = new Date(dateStart.valueOf() - 60000*MINUTES);
+	var MINUTES = 10;
+	var dateEnd = new Date();
+	var dateStart = new Date(dateEnd.valueOf() - 60000*MINUTES);
         $('#start').val(getFormattedDate(dateStart));
         $('#end').val(getFormattedDate(dateEnd));
     </script>
