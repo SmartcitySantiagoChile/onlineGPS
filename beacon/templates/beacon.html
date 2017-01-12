@@ -54,10 +54,8 @@
         var chart = c3.generate({
             bindto: '#chart',
             data: {
-	        xs:{'as':'x'},
                 columns: [
-		    ['as',1,2,3],
-		    ['x',1,2,3]
+		    []
                 ],
 		xFormat: '%Y-%m-%d %H:%M:%S',
             },
@@ -95,15 +93,15 @@
             $.get('getChartData', {'start': start, 'end': end}, 
             function(data){
 		console.log(data);
-		console.log(data['columns']);
-		console.log(data['xs']);
                 
-                chart.load({
+		var chartOpts = {
                     xs: data['xs'],
-                    colums: data['columns'],
+                    columns: data['columns'],
                     xFormat: '%Y-%m-%d %H:%M:%S',
-		    //unload: true,
-                });
+		    unload: true,
+                }
+                chart.load(chartOpts);
+	        chart.xgrids.remove();
 		chart.xgrids.add(data['events']);
 		console.log('chart updated');
             });
@@ -113,6 +111,29 @@
          *  ADD BEHAVIOR TO BUTTON
          */
         $('#update').click(update);
+
+	//reference: http://stackoverflow.com/questions/10632346/how-to-format-a-date-in-mm-dd-yyyy-hhmmss-format-in-javascript
+	Number.prototype.padLeft = function(base,chr){
+            var  len = (String(base || 10).length - String(this).length)+1;
+	    return len > 0? new Array(len).join(chr || '0')+this : this;
+	}
+        var getFormattedDate = function (date) {
+	    var d = date,
+	        dformat = [d.getFullYear(),
+		           (d.getMonth()+1).padLeft(),
+                           d.getDate().padLeft()].join('-') + ' ' +
+                          [d.getHours().padLeft(),
+                           d.getMinutes().padLeft(),
+                           d.getSeconds().padLeft()].join(':');
+
+	    return dformat;
+        }
+
+	var MINUTES = 1;
+	var dateStart = new Date();
+	var dateEnd = new Date(dateStart.valueOf() - 60000*MINUTES);
+        $('#start').val(getFormattedDate(dateStart));
+        $('#end').val(getFormattedDate(dateEnd));
     </script>
-</body>
-</html>
+    </body>
+    </html>
