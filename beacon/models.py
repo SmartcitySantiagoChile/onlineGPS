@@ -7,7 +7,7 @@ def formatDateTime(dateTime):
     return timezone.localtime(dateTime).strftime("%Y-%m-%d %H:%M:%S")
 
 class Beacon(models.Model):
-    macAddr = models.CharField(max_length=20)
+    macAddr = models.CharField(max_length=20, unique=True)
     uuid    = models.UUIDField(editable=False)
     major   = models.CharField(max_length=10, null=False)
     minor   = models.CharField(max_length=10, null=False)
