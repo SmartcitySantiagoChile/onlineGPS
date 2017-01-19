@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'dtpmvelocities',
     'drawroute',
     'beacon',
+    'dailybusesinfo',
 ]
 
 MIDDLEWARE = [
