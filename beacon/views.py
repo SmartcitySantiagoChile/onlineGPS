@@ -87,7 +87,9 @@ class GetEventsData(View):
 
     def getEvents(self, start, end, deviceId):
  
-        events = Event.objects.filter(time__range=(start, end), device__externalId=deviceId)
+        events = Event.objects.filter(
+                time__range=(start, end), 
+                device__externalId=deviceId)
         eventList = map(lambda x: x.getDict(), events)
 
         return eventList
@@ -135,6 +137,27 @@ class GetBeaconsData(View):
                     time__range=(start, end), device__externalId=deviceId)
             b['log'] = map(lambda x: x.getDict(), records)
             response.append(b)
+
+        return JsonResponse(response, safe=False)
+
+class GetDevicesData(View):
+    
+    def __init__(self):
+        self.context={}
+
+    def get(self, request):
+ 
+        start    = request.GET['start']
+        end      = request.GET['end']
+
+        start = dateparse.parse_datetime(start)
+        start = timezone.make_aware(start)
+        end   = dateparse.parse_datetime(end)
+        end   = timezone.make_aware(end)
+
+        devices = DetectorDevice.objects.filter(
+                beaconlog__time__range=(start, end)).distinct()
+        response = map(lambda x: x.getDict(), devices)
 
         return JsonResponse(response, safe=False)
 

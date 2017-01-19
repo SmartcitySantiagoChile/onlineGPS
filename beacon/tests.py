@@ -205,6 +205,29 @@ class BeaconTestCase(TestCase):
         self.assertEqual(len(jsonResponse['xs']), 2)
         self.assertEqual(len(jsonResponse['events']), 2)
 
+    def testGetDevicesData(self):
+
+        start = '2017-01-09 14:36:00'
+        end   = '2017-01-09 14:37:00'
+        url = 'getDevicesData'
+        
+        response = self.makeGetRequest(url, 
+                {'start':start,'end':end})
+
+        jsonResponse = json.loads(response.content)
+        
+        self.assertEqual(len(jsonResponse), 1)
+        self.assertEqual(jsonResponse[0]['deviceId'], self.deviceId)
+
+        end   = '2017-01-11 14:37:00'
+
+        response = self.makeGetRequest(url, 
+                {'start':start,'end':end})
+        jsonResponse = json.loads(response.content)
+        self.assertEqual(len(jsonResponse), 2)
+        self.assertEqual(jsonResponse[0]['deviceId'], u'000000000000000')
+        self.assertEqual(jsonResponse[1]['deviceId'], self.deviceId)
+
     def testPlot(self):
 
         url = 'show'

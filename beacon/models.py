@@ -31,6 +31,7 @@ class DetectorDevice(models.Model):
     def getDict(self):
         dict = {}
         dict['deviceId'] = self.externalId
+        return dict
 
     def __str__(self):
         return self.externalId
