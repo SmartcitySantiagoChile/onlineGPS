@@ -23,14 +23,17 @@ class Beacon(models.Model):
     class Meta:
         unique_together = ('uuid', 'major', 'minor')
 
+
 class BeaconLog(models.Model):
     time         = models.DateTimeField(null=False)
     rssi         = models.IntegerField(null=False)
     measurePower = models.IntegerField(null=False)
     beacon       = models.ForeignKey(Beacon, on_delete=models.CASCADE)
+    device       = models.ForeignKey(DetectorDevice, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{} | {} | {}".format(self.time, self.rssi, self.measurePower)
+        return "time: {} | rssi: {} | measurePower: {}".format(
+                self.time, self.rssi, self.measurePower)
 
     def getDict(self):
         dict = {}
@@ -40,13 +43,27 @@ class BeaconLog(models.Model):
         return dict
 
 
-class Event(models.Model):
-    time  = models.DateTimeField(null=False)
-    event = models.TextField(null=False)
+class DetectorDevice(models.Model):
+    """ device which detects beacons, now only cellphones """
+    externalId = models.CharField(max_length=32, unique=True)
 
     def getDict(self):
         dict = {}
-        dict['time'] = formatDateTime(self.time)
+        dict['deviceId'] = self.externalId
+
+    def __str__(self):
+        return self.externalId
+
+
+class Event(models.Model):
+    time   = models.DateTimeField(null=False)
+    event  = models.TextField(null=False)
+    device = models.ForeignKey(DetectorDevice, on_delete=models.CASCADE)
+
+    def getDict(self):
+        dict = {}
+        dict['time']  = formatDateTime(self.time)
         dict['event'] = self.event
         return dict
+
 
