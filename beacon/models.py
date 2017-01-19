@@ -24,6 +24,18 @@ class Beacon(models.Model):
         unique_together = ('uuid', 'major', 'minor')
 
 
+class DetectorDevice(models.Model):
+    """ device which detects beacons, now only cellphones """
+    externalId = models.CharField(max_length=32, unique=True)
+
+    def getDict(self):
+        dict = {}
+        dict['deviceId'] = self.externalId
+
+    def __str__(self):
+        return self.externalId
+
+
 class BeaconLog(models.Model):
     time         = models.DateTimeField(null=False)
     rssi         = models.IntegerField(null=False)
@@ -41,18 +53,6 @@ class BeaconLog(models.Model):
         dict['rssi'] = self.rssi
         dict['measurePower'] = self.measurePower
         return dict
-
-
-class DetectorDevice(models.Model):
-    """ device which detects beacons, now only cellphones """
-    externalId = models.CharField(max_length=32, unique=True)
-
-    def getDict(self):
-        dict = {}
-        dict['deviceId'] = self.externalId
-
-    def __str__(self):
-        return self.externalId
 
 
 class Event(models.Model):
