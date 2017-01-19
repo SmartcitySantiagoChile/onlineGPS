@@ -40,8 +40,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-9" style="height: 100%;min-height: 100%">
-                <div id="chart" style="height: 100%;min-height: 100%"></div>
+            <div id="chartWrapper" class="col-md-9" style="height: 100%;min-height: 100%">
             <div>
         </div>
     </div>
@@ -55,46 +54,58 @@
         /*
          *  CHART
          */
-        var chart = c3.generate({
-            bindto: '#chart',
-            data: {
-                columns: [
-		    []
-                ],
-		xFormat: '%Y-%m-%d %H:%M:%S',
-            },
-            axis: {
-                x: {
-                    type: "timeseries",
-                    tick: {
-                        format: '%H:%M:%S',
-			rotate: -75,
-			multiline: false
-		    },
-                    label: {
-		        text: 'Hora[HH:MM:SS]'
-		    },
-		    height: 80
+        var charts = {};
+
+        var getChart = function(deviceId) {
+	    
+	    if (charts.hasOwnProperty(deviceId)) {
+                return charts[deviceId];
+	    }
+
+            var chart = c3.generate({
+                bindto: '#id' + deviceId,
+                data: {
+                    columns: [
+		        []
+                    ],
+                    xFormat: '%Y-%m-%d %H:%M:%S',
                 },
-		y: {
-                    label: {
-	                text: 'RSSI',
-                        position: 'outer',
-	            }
-		}
-            },
-	    lables: true,
-        });
+                axis: {
+                    x: {
+                        type: "timeseries",
+                        tick: {
+                            format: '%H:%M:%S',
+		            rotate: -75,
+                            multiline: false
+                        },
+                        label: {
+                            text: 'Hora[HH:MM:SS]'
+		        },
+                        height: 80
+                    },
+		    y: {
+                        label: {
+	                    text: 'RSSI',
+                            position: 'outer',
+	                }
+		    }
+                },
+	        lables: true,
+            });
+	    charts[deviceId] = chart;
+
+	    return chart;
+	}
 
         /*
          *  UPDATE CHART
          */
-        var update = function() {
+        var updateChart = function(deviceId) {
 	    console.log('updating chart...');
             var start = $('#start').val();
             var end = $('#end').val();
 
-            $.get('getChartData', {'start': start, 'end': end}, 
+            $.get('getChartData', {'start': start, 'end': end, 'device': deviceId}, 
             function(data){
 		console.log(data);
                 
@@ -104,6 +115,7 @@
                     xFormat: '%Y-%m-%d %H:%M:%S',
 		    unload: true,
                 }
+		var chart = getChart(deviceId);
                 chart.load(chartOpts);
 	        chart.xgrids.remove();
 		chart.xgrids.add(data['events']);
@@ -111,10 +123,46 @@
             });
         }
 
+        var clearDivs = function(newDivs) {
+	    $('#chartWrapper').children('div[id^=id]').each(function(i, div){
+	        var id = div.id.substring(2, div.id.length);
+
+	        var result = $.grep(newDivs, function(e){ return e.deviceId == id;});
+	        if (result.length == 0) {
+                    charts[id].destroy();
+	            delete charts[id];
+                    $(div).remove();
+	        }
+	    });
+	}
+
+        var getDevices = function() {
+	    console.log('getting devices info...');
+            var start = $('#start').val();
+            var end = $('#end').val();
+
+            $.get('getDevicesData', {'start': start, 'end': end}, 
+            function(data) {
+                console.log(data);
+		clearDivs(data);
+		 
+		var percentage = 100/data.length;
+		$.each(data, function(i, v){
+		    var deviceId = v.deviceId;
+                    var html = '<div id="id' + deviceId + '" style="height: '+percentage+'%;min-height: '+percentage+'%"></div>';
+		    // if tag does not exists
+		    if ($('#id'+deviceId).length == 0) {
+                        $('#chartWrapper').append(html);
+		    }
+		    updateChart(deviceId);
+                });
+	    })
+	}
+
         /*
          *  ADD BEHAVIOR TO BUTTON
          */
-        $('#update').click(update);
+        $('#update').click(getDevices);
 
 	//reference: http://stackoverflow.com/questions/10632346/how-to-format-a-date-in-mm-dd-yyyy-hhmmss-format-in-javascript
 	Number.prototype.padLeft = function(base,chr){
