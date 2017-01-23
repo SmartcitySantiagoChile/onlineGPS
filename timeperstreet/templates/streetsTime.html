@@ -650,7 +650,7 @@
 
 			    // define destination options in select
                             $.each(streetsData, function(dest, v){
-			        $('#destination').append('<option value="' + dest + '">' + dest + '</option>');
+			        $('#destination').append('<option value="' + dest + '" ' + (dest=="Todos"?"selected":"") + '>' + dest + '</option>');
 		            });
 
                             $('#drawType').change(function(){
