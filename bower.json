@@ -19,5 +19,8 @@
     "bower_components",
     "test",
     "tests"
-  ]
+  ],
+  "dependencies": {
+    "Leaflet.TextPath": "git://github.com/felipinbombin/Leaflet.TextPath.git#^1.1.1"
+  }
 }

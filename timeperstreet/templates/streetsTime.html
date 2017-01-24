@@ -17,8 +17,6 @@
         
         <!-- leaflet -->
         <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.1/dist/leaflet.css" />
-        <!-- leaflet plugins -->
-        <link rel="stylesheet" href="{% static "css/leaflet.groupedlayercontrol.min.css" %}">
 
         <!-- bootstrap -->
         <link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}"/>
@@ -103,7 +101,7 @@
         <script src="https://npmcdn.com/leaflet@1.0.1/dist/leaflet.js"></script>
         <script src="{% static "js/leaflet.hotline.js" %}"></script>
         <script src="{% static "js/Leaflet.polylineDecorator.js" %}"></script>
-        <script src="{% static "js/leaflet.groupedlayercontrol.min.js" %}"></script>
+        <script src="{% static "components/Leaflet.TextPath/leaflet.textpath.js" %}"></script>
 
         <script>
         $(document).ready(function() { 
@@ -242,7 +240,7 @@
                 closePopupOnClick: false
             }).setView(beauchefLocation, 13);
             var layers = {};
-            var grayStyle= 'https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoidHJhbnNhcHAiLCJhIjoiY2lzbjl6MDQzMDRkNzJxbXhyZWZ1aTlocCJ9.-xsBhulirrT0nMom_Ay9Og';
+            var grayStyle= 'https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoidHJhbnNhcHAiLCJhIjoiY2lzbjl6MDQzMDRkNzJxbXhyZWZ1aTlocCJ9.-xsBhulirrT0nMom_Ay9Og';
             var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, Imagery © <a href="http://mapbox.com">Mapbox</a>';
             var grayLayer = L.tileLayer(grayStyle, {attribution: attribution});
             grayLayer.addTo(map);
@@ -269,6 +267,27 @@
                         d <= 30 ? 'darkGreen' :
                                   'blue';
             }
+
+	    var setLineText = function(line, streetTime, streetVelocity) {
+
+		if (line == null) {
+                    line.setText(null);
+		    return;
+		}
+
+		var text = streetTime + ' min.';
+                line.setText(text, {
+                    center: true,
+		    below: true,
+		    offset: 22,
+		    attributes: {
+		        fill: getColor(streetVelocity),
+		        "font-size": 25,
+		        "font-family": 'Verdana',
+		    }
+	        });
+            }
+
 
             /**
              * DEFINE INFO
@@ -372,6 +391,10 @@
                 // var line = L.polyline(latLngsWithVelocities);
                 //var message = '<h1>' + streetTime + ' min.</h1><h4>Aquí puede ir otra cosa.</h4>';
                 //line.bindPopup(message);
+		//console.log('AA');console.log(line._latlngs);console.log('BB');
+		//var pl = L.polyline(line._latlngs, {opacity: 0});
+		//setLineText(pl, streetTime, streetVelocity)
+		//pl.addTo(map);
 
                 console.log("Map updated with hotlines");
 
@@ -442,6 +465,8 @@
                     console.log("mouseout");
                     line.closePopup();
                 });
+                
+		setLineText(line, streetTime, streetVelocity)
 
                 line.on('mouseover', function(e) {
                     console.log("mouseover");
@@ -512,6 +537,9 @@
                 line.bindPopup(message, {
                     //closeButton: false
                 });
+
+		setLineText(line, streetTime, streetVelocity)
+
                 overlay.addLayer(line);
                  
                 console.log("Map updated with polyline");
@@ -557,7 +585,6 @@
             /**
              * LOAD DATA
              */
-            var groupPanelData = {};
             var updateMap = function(data){
                   
                 // remove currents layers from map
