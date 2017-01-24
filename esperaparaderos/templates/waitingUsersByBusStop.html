@@ -42,7 +42,7 @@
                     <br />
                     <div class="panel panel-default" >
                         <div class="panel-body">
-                            <input id="toggle" type="checkbox" data-toggle="toggle" data-on="Subidas" data-off="Tiempo sin bus" data-size="large" data-width="100%">
+                            <input id="toggle" type="checkbox" data-toggle="toggle" data-on="Tiempo sin bus" data-off="Subidas" data-size="large" data-width="100%">
                         </div>
                     </div> 
 
@@ -103,9 +103,9 @@
                     var toggle = $("#toggle").prop('checked');
                     
                     if (toggle) {
-                        return  "getMostPopulatedBusStops/";
+                        return "getMostDelayedBusesToBusStops/";
                     }
-                    return "getMostDelayedBusesToBusStops/";
+                    return  "getMostPopulatedBusStops/";
                 }
 
                 /**
@@ -141,13 +141,13 @@
                         // get circle radius
                         var toggle = $("#toggle").prop('checked');
                         if (toggle) {
-                            var values = data.map(function(v){return v.subidas;});
-                            var maxValue = Math.max(...values);
-                            var rate = data.map(function(v){return v.subidas / maxValue;});
-                        } else { 
                             var values = data.map(function(v){return v.segSinBus;})
                             var maxValue = Math.max(...values);
                             var rate = data.map(function(v){return v.segSinBus / maxValue;});
+                        } else { 
+                            var values = data.map(function(v){return v.subidas;});
+                            var maxValue = Math.max(...values);
+                            var rate = data.map(function(v){return v.subidas / maxValue;});
                         }
 
                         var maxRadius = 1000; // pixels
@@ -199,9 +199,9 @@
 
                             //add element to list group
                             if (toggle) {
-                                var rowElement = '<a id=' + v.codigo + ' href="#" class="list-group-item">' + v.codigo + '<span class="badge">' + v.subidas + '</span></a>';
-                            } else { 
                                 var rowElement = '<a id=' + v.codigo + ' href="#" class="list-group-item">' + v.codigo + '<span class="badge">' + v.tiempoSinBusF + '</span></a>';
+                            } else { 
+                                var rowElement = '<a id=' + v.codigo + ' href="#" class="list-group-item">' + v.codigo + '<span class="badge">' + v.subidas + '</span></a>';
                             } 
                             $("#busStopList").append(rowElement);
                             $("#" + v.codigo).click(function(e){
