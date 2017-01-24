@@ -17,7 +17,7 @@
         
         <!-- leaflet -->
         <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.1/dist/leaflet.css" />
-	<!-- leaflet plugins -->
+        <!-- leaflet plugins -->
         <link rel="stylesheet" href="{% static "css/leaflet.groupedlayercontrol.min.css" %}">
 
         <!-- bootstrap -->
@@ -54,37 +54,37 @@
             opacity: 0.8;
         }
 
-	/* bubble color */
-	.red .leaflet-popup-content-wrapper, .red .leaflet-popup-tip {
+        /* bubble color */
+        .red .leaflet-popup-content-wrapper, .red .leaflet-popup-tip {
             background-color: #FF3332;
-	    color: white;
-	}
-	.orange .leaflet-popup-content-wrapper, .orange .leaflet-popup-tip {
+            color: white;
+        }
+        .orange .leaflet-popup-content-wrapper, .orange .leaflet-popup-tip {
             background-color: #FFA632;
-	    color: white;
-	}
-	.yellow .leaflet-popup-content-wrapper, .yellow .leaflet-popup-tip {
+            color: white;
+        }
+        .yellow .leaflet-popup-content-wrapper, .yellow .leaflet-popup-tip {
             background-color: #FFF732;
-	    color: white;
-	    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
-	}
-	.green .leaflet-popup-content-wrapper, .green .leaflet-popup-tip {
+            color: white;
+            text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+        }
+        .green .leaflet-popup-content-wrapper, .green .leaflet-popup-tip {
             background-color: #47FF32;
-	    color: white;
-	}
-	.darkGreen .leaflet-popup-content-wrapper, .darkGreen .leaflet-popup-tip {
+            color: white;
+        }
+        .darkGreen .leaflet-popup-content-wrapper, .darkGreen .leaflet-popup-tip {
             background-color: #3DA032;
-	    color: white;
-	}
-	.blue .leaflet-popup-content-wrapper, .blue .leaflet-popup-tip {
+            color: white;
+        }
+        .blue .leaflet-popup-content-wrapper, .blue .leaflet-popup-tip {
             background-color: #4D5BF3;
-	    color: white;
-	}
+            color: white;
+        }
         </style>
     </head>
     <body>
         <!--[if lt IE 8]>
-            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
 
         <!-- Add your site or application content here -->
@@ -101,581 +101,581 @@
         <script src="{% static "js/main.js" %}"></script>
         <script src="{% static "js/bootstrap.min.js" %}"></script>    
         <script src="https://npmcdn.com/leaflet@1.0.1/dist/leaflet.js"></script>
-        <script src="{% static "js/Leaflet.GTFS.js" %}"></script>
         <script src="{% static "js/leaflet.hotline.js" %}"></script>
         <script src="{% static "js/Leaflet.polylineDecorator.js" %}"></script>
         <script src="{% static "js/leaflet.groupedlayercontrol.min.js" %}"></script>
 
         <script>
-            $(document).ready(function() { 
-	        /**
-		 * To calculate the distance of polyline
-		 *
-		 */
-                L.Polyline.prototype.length_in_meters = function () {
-		    var metros_totales_ruta = 0;
-                    var coordenadas_iniciales = null;
-                    var array_coordenadas_polilinea = this._latlngs;
+        $(document).ready(function() { 
+            /**
+             * To calculate the distance of polyline
+             *
+             */
+            L.Polyline.prototype.length_in_meters = function () {
+                var metros_totales_ruta = 0;
+                var coordenadas_iniciales = null;
+                var array_coordenadas_polilinea = this._latlngs;
 
-	            for (i = 0; i < array_coordenadas_polilinea.length - 1; i++) {
-	                coordenadas_iniciales = array_coordenadas_polilinea[i];
-	                metros_totales_ruta  += coordenadas_iniciales.distanceTo(array_coordenadas_polilinea[i + 1]);
+                for (i = 0; i < array_coordenadas_polilinea.length - 1; i++) {
+                    coordenadas_iniciales = array_coordenadas_polilinea[i];
+                    metros_totales_ruta  += coordenadas_iniciales.distanceTo(array_coordenadas_polilinea[i + 1]);
+                }
+                //redondear los metros de la ruta...
+                metros_totales_ruta = metros_totales_ruta.toFixed();
+                return metros_totales_ruta;
+            }
+
+            /*
+             *  Based on:
+             *  https://iosphere.github.io/Leaflet.hotline/demo/
+             *  http://leafletjs.com/examples/choropleth/
+             */
+
+            /**
+             * CREATE NEW SYMBOL TO POLYLINE DECORATOR
+             */
+            L.Symbol.LongArrowHead = L.Class.extend({
+                isZoomDependant: true,
+    
+                options: {
+                    polygon: true,
+                    pixelSize: 10,
+                    headAngle: 70,
+                    pathOptions: {
+                        stroke: false,
+                        weight: 2
                     }
-                    //redondear los metros de la ruta...
-	            metros_totales_ruta = metros_totales_ruta.toFixed();
-                    return metros_totales_ruta;
-		}
-
-                /*
-                 *  Based on:
-                 *  https://iosphere.github.io/Leaflet.hotline/demo/
-                 *  http://leafletjs.com/examples/choropleth/
-                 */
-
-                /**
-                 * CREATE NEW SYMBOL TO POLYLINE DECORATOR
-                 */
-                L.Symbol.LongArrowHead = L.Class.extend({
-                    isZoomDependant: true,
+                },
     
-                    options: {
-                        polygon: true,
-                        pixelSize: 10,
-                        headAngle: 70,
-                        pathOptions: {
-                            stroke: false,
-                            weight: 2
-                        }
-                    },
-    
-                    initialize: function (options) {
-                        L.Util.setOptions(this, options);
-                        this.options.pathOptions.clickable = false;
-                    },
+                initialize: function (options) {
+                    L.Util.setOptions(this, options);
+                    this.options.pathOptions.clickable = false;
+                },
 
-                    buildSymbol: function(dirPoint, latLngs, map, index, total) {
-                        var opts = this.options;
-                        var path;
-                        if(opts.polygon) {
-                            path = new L.Polygon(this._buildArrowPath(dirPoint, map), opts.pathOptions);
-                        } else {
-                            path = new L.Polyline(this._buildArrowPath(dirPoint, map), opts.pathOptions);
-                        }
-                        return path;
-                    },
+                buildSymbol: function(dirPoint, latLngs, map, index, total) {
+                    var opts = this.options;
+                    var path;
+                    if(opts.polygon) {
+                        path = new L.Polygon(this._buildArrowPath(dirPoint, map), opts.pathOptions);
+                    } else {
+                        path = new L.Polyline(this._buildArrowPath(dirPoint, map), opts.pathOptions);
+                    }
+                    return path;
+                },
     
-                    _buildArrowPath: function (dirPoint, map) {
-                        var d2r = Math.PI / 180;
-                        var tipPoint = map.project(dirPoint.latLng);
-                        var direction = (-(dirPoint.heading - 90)) * d2r;
-                        var radianArrowAngle = this.options.headAngle / 2 * d2r;
+                _buildArrowPath: function (dirPoint, map) {
+                    var d2r = Math.PI / 180;
+                    var tipPoint = map.project(dirPoint.latLng);
+                    var direction = (-(dirPoint.heading - 90)) * d2r;
+                    var radianArrowAngle = this.options.headAngle / 2 * d2r;
         
-                        var headAngle1 = direction + radianArrowAngle,
-                            headAngle2 = direction - radianArrowAngle;
-                            headAngle3 = direction + 0;
-                            headAngle4 = direction - 0;
-                            headAngle5 = direction - radianArrowAngle;
-                        var arrowHead1 = new L.Point(
-                                tipPoint.x - this.options.pixelSize * Math.cos(headAngle1),
-                                tipPoint.y + this.options.pixelSize * Math.sin(headAngle1)),
-                            arrowHead2 = new L.Point(
-                                tipPoint.x - this.options.pixelSize * Math.cos(headAngle2),
-                                tipPoint.y + this.options.pixelSize * Math.sin(headAngle2));
-                            arrowBack1 = new L.Point(
-                                arrowHead1.x - (this.options.pixelSize*1.5) * Math.cos(headAngle3),
-                                arrowHead1.y + (this.options.pixelSize*1.5) * Math.sin(headAngle3)),
-                            arrowBack2 = new L.Point(
-                                arrowHead2.x - (this.options.pixelSize * 1.5) * Math.cos(headAngle4),
-                                arrowHead2.y + (this.options.pixelSize * 1.5) * Math.sin(headAngle4));
-                            arrowBackCenter = new L.Point(
-                                arrowBack2.x + this.options.pixelSize * Math.cos(headAngle5),
-                                arrowBack2.y - this.options.pixelSize * Math.sin(headAngle5));
-                        
-                        return [
-                            map.unproject(arrowBack1),
-                            map.unproject(arrowHead1),
-                            dirPoint.latLng, 
-                            map.unproject(arrowHead2),
-                            map.unproject(arrowBack2),
-                            map.unproject(arrowBackCenter),
-                        ];
-                    }
-                });
-
-                L.Symbol.longArrowHead = function (options) {
-                    return new L.Symbol.LongArrowHead(options);
-                };
-
-                L.Symbol.Circle = L.Class.extend({
-                    isZoomDependant: true,
-    
-                    options: {
-                        radius: 6,
-                        pathOptions: {
-                            stroke: false,
-                            weight: 2
-                        }
-                    },
-    
-                    initialize: function (options) {
-                        L.Util.setOptions(this, options);
-                        this.options.pathOptions.clickable = false;
-                    },
-
-                    buildSymbol: function(dirPoint, latLngs, map, index, total) {
-                        var opts = this.options;
-                        var circle = new L.CircleMarker(dirPoint.latLng, opts.pathOptions);
-			circle.setRadius(opts.radius);
-                        return circle;
-                    },
-                });
-
-                L.Symbol.circle = function (options) {
-                    return new L.Symbol.Circle(options);
-                };
-
-                /**
-                 * SET MAP
-                 */
-                var beauchefLocation = L.latLng(-33.457910, -70.663869);
-                var map = L.map("mapid", {
-                    editable: true,
-                    closePopupOnClick: false
-                }).setView(beauchefLocation, 13);
-                var layers = {};
-                var baseLayer = DTPM.setLayerControl(map);
-                var mapControl = L.control.layers({}, {}).addTo(map);
-
-                // color for route
-                var getColor = function (d) {
-                    return d <  0  ? '#c4c4c4' :
-	                   d <= 15 ? '#ff0000' :
-		           d <= 19 ? '#ff9000' :
-		           d <= 21 ? '#fff600' :
-		           d <= 25 ? '#19ff00' :
-		           d <= 30 ? '#0d8900' :
-		                     '#2133f2';
-                }
-           
-	   	var getColorName = function (d) {
-                    return d <  0  ? 'grey' :
-	                   d <= 15 ? 'red' :
-		           d <= 19 ? 'orange' :
-		           d <= 21 ? 'yellow' :
-		           d <= 25 ? 'green' :
-		           d <= 30 ? 'darkGreen' :
-		                     'blue';
-                }
-
-                /**
-                 * DEFINE INFO
-                 */
-                var info = L.control({position: 'topright'});
-
-                info.onAdd = function (map) {
-                    this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
-                    this._div.innerHTML = '<h4>Tiempo por eje</h4>' + 
-                        '<b>Muestra los tiempos de viaje</b>' + 
-                        '<br /> Los datos consideran la velocidad ' + 
-			'<br /> de los buses de los últimos 15 minutos ' +
-                        '<br /> que recorren las calles señaladas.' + 
-                        '<br /><h4>Seleccionar tipo de representación</h4>' + 
-                        '<br /><select id="drawType" class="form-control">' + 
-			    '<option value="1">Línea</option>' + 
-			    '<option value="2" selected=selected>Patrón</option>' + 
-			    '<option value="3">Calor</option>' + 
-			'</select>' +
-                        '<br /><h4>Indicar destino</h4>' + 
-                        '<select id="destination" class="form-control">' + 
-			'</select>';
-                    return this._div;
-                };
-                info.addTo(map);
-                
-                /**
-                 * DEFINE LEGEND
-                 */
-                var legend = L.control({position: 'bottomright'});
-                legend.onAdd = function (map) {
-
-                    var div = L.DomUtil.create('div', 'info legend'),
-                    grades = [0, 15, 19, 21, 25, 30],
-                    labels = [];
-
-                    // loop through our density intervals and generate a label with a colored square for each interval
-                    for (var i = 0; i < grades.length; i++) {
-                        div.innerHTML +=
-                        '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
-                        grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
-                    }
-
-                    return div;
-                }; 
-                legend.addTo(map);
-
-                /**
-                 * DEFINE DRAW FUNCTIONS 
-                 */
-                function drawHotline(name, street) {
-                    
-                    var latLngsWithVelocities = [];
-                    var joinedSections = [];
-                    var streetName = name;
-                    var streetTime = (street.time/60).toFixed();
-                    var streetVelocity = street.velocity;
-
-                    $.each(street.sections, function(i, section){
-                        var velocity = section.velocity;
-                        var time = section.time;
-                        var originStreet = section.originStreet;
-                        var destinationStreet = section.destinationStreet;
-                           
-                        section.points.map(function(point){
-                            point["velocity"] = velocity;
-                            point["time"] = time;
-                        });
-                        joinedSections = joinedSections.concat(section.points);
-                    });
-
-                    // order by distOnRoute
-                    joinedSections.sort(function(a, b) {
-                        return a.distOnRoute - b.distOnRoute;
-                    });
-                        
-                    $.each(joinedSections, function(i2, point){
-                        latLngsWithVelocities.push([
-                            point.latitude, 
-                            point.longitude, 
-                            streetVelocity]);
-                    });
-
-                    var line = L.hotline(latLngsWithVelocities, {
-                        min: -1, 
-                        max: 100, 
-                        palette: {
-                            0.0:  getColor(0),
-			    0.15: getColor(15),
-			    0.19: getColor(19),
-			    0.21: getColor(21),
-			    0.25: getColor(25),
-			    0.30: getColor(30),
-			    1.0: getColor(100),
-                        },
-                        weight: 10,
-                        outlineColor: '#000000',
-                        outlineWidth: 1, 
-                        //smoothFactor: 2
-                    });
-                    // var line = L.polyline(latLngsWithVelocities);
-                    //var message = '<h1>' + streetTime + ' min.</h1><h4>Aquí puede ir otra cosa.</h4>';
-                    //line.bindPopup(message);
-
-                    console.log("Map updated with hotlines");
-
-		    return line;
-                };
-
-                function drawPolylineDecorator(name, street) {
+                    var headAngle1 = direction + radianArrowAngle,
+                        headAngle2 = direction - radianArrowAngle;
+                        headAngle3 = direction + 0;
+                        headAngle4 = direction - 0;
+                        headAngle5 = direction - radianArrowAngle;
+                    var arrowHead1 = new L.Point(
+                            tipPoint.x - this.options.pixelSize * Math.cos(headAngle1),
+                            tipPoint.y + this.options.pixelSize * Math.sin(headAngle1)),
+                        arrowHead2 = new L.Point(
+                            tipPoint.x - this.options.pixelSize * Math.cos(headAngle2),
+                            tipPoint.y + this.options.pixelSize * Math.sin(headAngle2));
+                        arrowBack1 = new L.Point(
+                            arrowHead1.x - (this.options.pixelSize*1.5) * Math.cos(headAngle3),
+                            arrowHead1.y + (this.options.pixelSize*1.5) * Math.sin(headAngle3)),
+                        arrowBack2 = new L.Point(
+                            arrowHead2.x - (this.options.pixelSize * 1.5) * Math.cos(headAngle4),
+                            arrowHead2.y + (this.options.pixelSize * 1.5) * Math.sin(headAngle4));
+                        arrowBackCenter = new L.Point(
+                            arrowBack2.x + this.options.pixelSize * Math.cos(headAngle5),
+                            arrowBack2.y - this.options.pixelSize * Math.sin(headAngle5));
                      
-                    var overlay = L.layerGroup([]);
-                    var streetName = name;
-                    var streetTime = (street.time/60).toFixed();
-                    var streetVelocity = street.velocity;
-	            var origin = street.origin;
-		    var destination = street.destination;
-
-	            var joinedSections = [];
-                    var latLngs = [];
-
-                    $.each(street.sections, function(i, section){
-                        joinedSections = joinedSections.concat(section.points);
-		    });	
-                    
-		    // order by distOnRoute
-                    joinedSections.sort(function(a, b) {
-                        return a.distOnRoute - b.distOnRoute;
-                    });
-    
-                    $.each(joinedSections, function(i2, point){
-                        latLngs.push([point.latitude, point.longitude]);
-                    });
-
-                    var line = L.polyline(latLngs, {color: getColor(streetVelocity), weight: 5});
-                    overlay.addLayer(line);
-                    var patternsOpts = [
-                        // defines a pattern of 10px-wide dashes, repeated every 20px on the line
-                        {offset: 10, endOffset: 0, repeat: '5%', symbol: 
-                            /*L.Symbol.longArrowHead({
-                            /*L.Symbol.arrowHead({
-                                rotate: true,
-                                pixelSize: 12, 
-                                polygon: true, 
-                                pathOptions: {
-                                    color: getColor(streetVelocity),
-                                    stroke: false,
-		                    fillColor: getColor(streetVelocity),
-			            fillOpacity: 1.0
-                                }
-                            })}
-			    */
-			    L.Symbol.circle({
-                                radius: 5, 
-				pathOptions: {
-                                    color: getColor(streetVelocity),
-                                    stroke: false,
-		                    fillColor: getColor(streetVelocity),
-			            fillOpacity: 1.0
-				}
-	                    })
-			}]
-
-                    var decorator = L.polylineDecorator(line, {
-                        patterns: patternsOpts                          
-                    });
-                    var message = "<h1>" + streetTime + " min.</h1><h4>Calle: " + streetName + "</h4><h5>Origen: " + origin + "</h5><h5>Destino: " + destination + "</h5>";
-		    decorator.bindPopup(message);
-
-		    line.on('mouseout', function(e) {
-	                console.log("mouseout");
-			line.closePopup();
-		    });
-
-		    line.on('mouseover', function(e) {
-	                console.log("mouseover");
-			line.openPopup();
-		    });
-
-		    line.bindPopup(message, {
-                        className: getColorName(streetVelocity),
-			closeButton: false
-		    });
-                    overlay.addLayer(decorator);
-
-                    //********************************************************/
-                    //* animation
-                    var arrowOffset = 0;
-                    patternsOpts[0].repeat = 0;
-		    var delta = (1/streetTime)*5
-                    var anim = window.setInterval(function() {
-                        patternsOpts[0].offset = arrowOffset + '%';
-                        decorator.setPatterns(patternsOpts);
-                        if(arrowOffset > 100)
-                            arrowOffset = 0;
-		         arrowOffset = arrowOffset + delta;
-                    }, 10);
-                    //*/
-                    //********************************************************/
-                        
-                    console.log("Map updated with polyline decorator");
-
-		    return overlay;
-                };
-
-                function drawColorLine(name, street) {
-	            
-                    var overlay = L.layerGroup([]);
-                    var streetName = name;
-                    var streetTime = (street.time/60).toFixed();
-                    var streetVelocity = street.velocity;
-	            var origin = street.origin;
-		    var destination = street.destination;
-
-                    var joinedSections = [];
-                    var latLngs = [];
-                    //var streetVelocity = ;
-                    $.each(street.sections, function(i, section){
-		        /*
-                        var velocity = section.velocity;
-                        var sectionTime = section.time;
-                        */
-                        joinedSections = joinedSections.concat(section.points);
-		    });
-                    
-		    // order by distOnRoute
-                    joinedSections.sort(function(a, b) {
-                        return a.distOnRoute - b.distOnRoute;
-                    });
-
-                    $.each(joinedSections, function(i2, point){
-                        latLngs.push([point.latitude, point.longitude]);
-                    });
-
-                    var line = L.polyline(latLngs, {
-                        color: getColor(streetVelocity), 
-                        weight: 8
-                    });
-
-                    var message = "<h1>" + streetTime + " min.</h1><h4>Calle: " + name + "</h4><h5>Origen: " + origin + "</h5><h5>Destino: " + destination + "</h5>";
-                    line.bindPopup(message, {
-                        //closeButton: false
-                    });
-                    overlay.addLayer(line);
-                    
-                    console.log("Map updated with polyline");
-
-		    return overlay;
-                };
- 
-		// Add poits of interest to map
-                var POIsOverlay = L.layerGroup([]);
-		POIsOverlay.addTo(map);
-                mapControl.addOverlay(POIsOverlay, 'POIs');
-
-                function drawPOIs(data) {
-                    
-		    POIsOverlay.clearLayers();
-                    
-                    $.each(data, function(i, poi){
-                        var paramName = "Nombre: " + poi.name;
-                        //var paramOrigin = "Origen: " + poi.origin;
-                        //var paramDestination = "Destino: " + poi.destination;
-                        var paramZone = "Zona: " + poi.zone;
-                        //var paramStreet = "Calle: " + poi.street;
-                        var params = [];
-                        params.push(paramName);
-                        //params.push(paramOrigin);
-                        //params.push(paramDestination);
-                        params.push(paramZone);
-                        //params.push(paramStreet);
-                        params = params.join("<br />");
-
-                        var marker = L.marker([poi.latitude, poi.longitude], {
-                           icon: L.icon({
-                               iconUrl: 'http://icons.iconarchive.com/icons/custom-icon-design/mono-business/16/target-icon.png',
-                               iconSize: [16, 16]
-                           })
-                        }).bindPopup("<p>" + params + "</p>");
-                        POIsOverlay.addLayer(marker);
-                    });
-
-                    console.log("Map updated with POIs");
+                    return [
+                        map.unproject(arrowBack1),
+                        map.unproject(arrowHead1),
+                        dirPoint.latLng, 
+                        map.unproject(arrowHead2),
+                        map.unproject(arrowBack2),
+                        map.unproject(arrowBackCenter),
+                    ];
                 }
-
-                /**
-                 * LOAD DATA
-                 */
-                DTPM.loadData(function(){
-                    var groupPanelData = {};
-                    var updateMap = function(data){
-                     
-                        // remove currents layers from map
-                        $.each(layers, function(i, l){
-                            map.removeLayer(l.layer);
-                            mapControl.removeLayer(l.layer);
-                        });
-                        layers = [];
-
-			// each zone
-			$.each(data, function(zone, streets) {
-			    // draw street
-                            $.each(streets, function(name, street) {
-				var layer = drawLines(name, street);
-		                layers.push({
-				    name: name,
-				    layer: layer
-			        });
-                            });
-			});
-
-                        // add layers to map and control
-                        $.each(layers, function(i, l){
-                            l.layer.addTo(map);
-                            mapControl.addOverlay(l.layer, l.name);
-                        });
-		    };
-
-		    // it is responsable of select the way to draw
-                    var drawLines = function(name, street){
-                        var drawType = $("#drawType option:selected").val();
-
-                        switch(drawType) {
-                            case "1": 
-                                layer = drawColorLine(name, street);
-                                break;
-                            case "2": 
-                                layer = drawPolylineDecorator(name, street);
-                                break;
-                            case "3": 
-                                layer = drawHotline(name, street);
-                                break;
-                        }
-
-			return layer;
-                    };
-
-		    var streetsData = {};
-		    var getStreetData = function() {
-                        var destination = $("#destination option:selected").val();
-                        return streetsData[destination];
-		    }
-
-		    var poisData = {};
-		    var getPoisData = function() {
-                        var destination = $("#destination option:selected").val();
-                        var origins = poisData[destination];
-			var pois = [];
-
-			$.each(origins, function (i, origin){
-			    $.each(origin, function (name, points){
-			        pois = pois.concat(points);
-			    });
-			});
-                        
-			return pois;
-                    }
-
-                    $.ajax({
-                        url: "getStreetData",
-                        success: function(data){
-			    /*
-                            //TODO: dar formato cn opciones de destino y zona
-                            Norte     = data.Destination.Centro.Norte;
-                            Poniente1 = data.Destination.Centro.Poniente1;
-                            Poniente2 = data.Destination.Centro.Poniente2;
-                            Oriente   = data.Destination.Centro.Oriente;
-                            Sur       = data.Destination.Centro.Sur;
-
-                            rawData = $.extend({}, Norte, Poniente1, Poniente2, Oriente, Sur);
-			    */
-
-			    // Add option to see all streets together
-			    var all = {};
-			    $.each(data.Destination, function(i,origin){
-			        $.each(origin, function(i,v){
-			            all = $.extend(all, v);
-		                });
-		            });
-			    streetsData = data.Destination;
-			    streetsData = $.extend(data.Destination,{'Todos': {'Todos': all}});
-
-			    // define destination options in select
-                            $.each(streetsData, function(dest, v){
-			        $('#destination').append('<option value="' + dest + '" ' + (dest=="Todos"?"selected":"") + '>' + dest + '</option>');
-		            });
-
-                            $('#drawType').change(function(){
-                                updateMap(getStreetData());
-                                drawPOIs(getPoisData());
-                            });
-                            $('#destination').change(function(){
-                                updateMap(getStreetData());
-                                drawPOIs(getPoisData());
-                            });
-
-                            $.ajax({
-                                url: "getPOIData",
-                                success: function(data){
-                                    poisData = data.Destination;
-                                    drawPOIs(getPoisData());
-                                }
-                            });
-
-                            updateMap(getStreetData());
-                        }
-                    });
-                    
-                }, "{% static ""%}");
             });
-        </script>
-    </body>
+
+            L.Symbol.longArrowHead = function (options) {
+                return new L.Symbol.LongArrowHead(options);
+            };
+
+            L.Symbol.Circle = L.Class.extend({
+                isZoomDependant: true,
+ 
+                options: {
+                    radius: 6,
+                    pathOptions: {
+                        stroke: false,
+                        weight: 2
+                    }
+                },
+ 
+                initialize: function (options) {
+                    L.Util.setOptions(this, options);
+                    this.options.pathOptions.clickable = false;
+                },
+
+                buildSymbol: function(dirPoint, latLngs, map, index, total) {
+                    var opts = this.options;
+                    var circle = new L.CircleMarker(dirPoint.latLng, opts.pathOptions);
+                    circle.setRadius(opts.radius);
+                    return circle;
+                },
+            });
+
+            L.Symbol.circle = function (options) {
+                return new L.Symbol.Circle(options);
+            };
+
+            /**
+             * SET MAP
+             */
+            var beauchefLocation = L.latLng(-33.457910, -70.663869);
+            var map = L.map("mapid", {
+                editable: true,
+                closePopupOnClick: false
+            }).setView(beauchefLocation, 13);
+            var layers = {};
+            var grayStyle= 'https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoidHJhbnNhcHAiLCJhIjoiY2lzbjl6MDQzMDRkNzJxbXhyZWZ1aTlocCJ9.-xsBhulirrT0nMom_Ay9Og';
+            var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, Imagery © <a href="http://mapbox.com">Mapbox</a>';
+            var grayLayer = L.tileLayer(grayStyle, {attribution: attribution});
+            grayLayer.addTo(map);
+
+            var mapControl = L.control.layers({}, {}).addTo(map);
+
+            // color for route
+            var getColor = function (d) {
+                return d <  0  ? '#c4c4c4' :
+                       d <= 15 ? '#ff0000' :
+                       d <= 19 ? '#ff9000' :
+                       d <= 21 ? '#fff600' :
+                       d <= 25 ? '#19ff00' :
+                       d <= 30 ? '#0d8900' :
+                                 '#2133f2';
+            }
+        
+            var getColorName = function (d) {
+                 return d <  0  ? 'grey' :
+                        d <= 15 ? 'red' :
+                        d <= 19 ? 'orange' :
+                        d <= 21 ? 'yellow' :
+                        d <= 25 ? 'green' :
+                        d <= 30 ? 'darkGreen' :
+                                  'blue';
+            }
+
+            /**
+             * DEFINE INFO
+             */
+            var info = L.control({position: 'topright'});
+
+            info.onAdd = function (map) {
+                this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+                this._div.innerHTML = '<h4>Tiempo por eje</h4>' + 
+                     '<b>Muestra los tiempos de viaje</b>' + 
+                     '<br /> Los datos consideran la velocidad ' + 
+                     '<br /> de los buses de los últimos 15 minutos ' +
+                     '<br /> que recorren las calles señaladas.' + 
+                     '<br /><h4>Seleccionar tipo de representación</h4>' + 
+                     '<br /><select id="drawType" class="form-control">' + 
+                         '<option value="1">Línea</option>' + 
+                         '<option value="2" selected=selected>Patrón</option>' + 
+                         '<option value="3">Calor</option>' + 
+                     '</select>' +
+                     '<br /><h4>Indicar destino</h4>' + 
+                     '<select id="destination" class="form-control">' + 
+                     '</select>';
+                return this._div;
+            };
+            info.addTo(map);
+             
+            /**
+             * DEFINE LEGEND
+             */
+            var legend = L.control({position: 'bottomright'});
+            legend.onAdd = function (map) {
+
+                var div = L.DomUtil.create('div', 'info legend'),
+                grades = [0, 15, 19, 21, 25, 30],
+                labels = [];
+
+                // loop through our density intervals and generate a label with a colored square for each interval
+                for (var i = 0; i < grades.length; i++) {
+                    div.innerHTML +=
+                    '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
+                    grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+                }
+
+                return div;
+            }; 
+            legend.addTo(map);
+
+            /**
+             * DEFINE DRAW FUNCTIONS 
+             */
+            function drawHotline(name, street) {
+                 
+                var latLngsWithVelocities = [];
+                var joinedSections = [];
+                var streetName = name;
+                var streetTime = (street.time/60).toFixed();
+                var streetVelocity = street.velocity;
+
+                $.each(street.sections, function(i, section){
+                    var velocity = section.velocity;
+                    var time = section.time;
+                    var originStreet = section.originStreet;
+                    var destinationStreet = section.destinationStreet;
+                        
+                    section.points.map(function(point){
+                        point["velocity"] = velocity;
+                        point["time"] = time;
+                    });
+                    joinedSections = joinedSections.concat(section.points);
+                });
+
+                // order by distOnRoute
+                joinedSections.sort(function(a, b) {
+                    return a.distOnRoute - b.distOnRoute;
+                });
+                     
+                $.each(joinedSections, function(i2, point){
+                    latLngsWithVelocities.push([
+                        point.latitude, 
+                        point.longitude, 
+                        streetVelocity]);
+                });
+
+                var line = L.hotline(latLngsWithVelocities, {
+                    min: -1, 
+                    max: 100, 
+                    palette: {
+                        0.0:  getColor(0),
+                        0.15: getColor(15),
+                        0.19: getColor(19),
+                        0.21: getColor(21),
+                        0.25: getColor(25),
+                        0.30: getColor(30),
+                        1.0: getColor(100),
+                    },
+                    weight: 10,
+                    outlineColor: '#000000',
+                    outlineWidth: 1, 
+                    //smoothFactor: 2
+                });
+                // var line = L.polyline(latLngsWithVelocities);
+                //var message = '<h1>' + streetTime + ' min.</h1><h4>Aquí puede ir otra cosa.</h4>';
+                //line.bindPopup(message);
+
+                console.log("Map updated with hotlines");
+
+                return line;
+            };
+
+            function drawPolylineDecorator(name, street) {
+                  
+                var overlay = L.layerGroup([]);
+                var streetName = name;
+                var streetTime = (street.time/60).toFixed();
+                var streetVelocity = street.velocity;
+                var origin = street.origin;
+                var destination = street.destination;
+
+                var joinedSections = [];
+                var latLngs = [];
+
+                $.each(street.sections, function(i, section){
+                    joinedSections = joinedSections.concat(section.points);
+                });    
+                 
+                // order by distOnRoute
+                joinedSections.sort(function(a, b) {
+                    return a.distOnRoute - b.distOnRoute;
+                });
+ 
+                $.each(joinedSections, function(i2, point){
+                    latLngs.push([point.latitude, point.longitude]);
+                });
+
+                var line = L.polyline(latLngs, {color: getColor(streetVelocity), weight: 5});
+                overlay.addLayer(line);
+                var patternsOpts = [
+                    // defines a pattern of 10px-wide dashes, repeated every 20px on the line
+                    {offset: 10, endOffset: 0, repeat: '5%', symbol: 
+                        /*L.Symbol.longArrowHead({
+                        /*L.Symbol.arrowHead({
+                            rotate: true,
+                            pixelSize: 12, 
+                            polygon: true, 
+                            pathOptions: {
+                                color: getColor(streetVelocity),
+                                stroke: false,
+                                fillColor: getColor(streetVelocity),
+                                fillOpacity: 1.0
+                            }
+                        })}
+                    */
+                    L.Symbol.circle({
+                        radius: 5, 
+                        pathOptions: {
+                            color: getColor(streetVelocity),
+                            stroke: false,
+                            fillColor: getColor(streetVelocity),
+                            fillOpacity: 1.0
+                        }
+                    })
+                }]
+
+                var decorator = L.polylineDecorator(line, {
+                    patterns: patternsOpts                          
+                });
+                var message = "<h1>" + streetTime + " min.</h1><h4>Calle: " + streetName + "</h4><h5>Origen: " + origin + "</h5><h5>Destino: " + destination + "</h5>";
+                decorator.bindPopup(message);
+
+                line.on('mouseout', function(e) {
+                    console.log("mouseout");
+                    line.closePopup();
+                });
+
+                line.on('mouseover', function(e) {
+                    console.log("mouseover");
+                    line.openPopup();
+                });
+
+                line.bindPopup(message, {
+                    className: getColorName(streetVelocity),
+                    closeButton: false
+                });
+                overlay.addLayer(decorator);
+
+                //********************************************************/
+                //* animation
+                var arrowOffset = 0;
+                patternsOpts[0].repeat = 0;
+                var delta = (1/streetTime)*5
+                var anim = window.setInterval(function() {
+                    patternsOpts[0].offset = arrowOffset + '%';
+                    decorator.setPatterns(patternsOpts);
+                    if(arrowOffset > 100)
+                        arrowOffset = 0;
+                        arrowOffset = arrowOffset + delta;
+                }, 10);
+                //*/
+                //********************************************************/
+                     
+                console.log("Map updated with polyline decorator");
+
+                return overlay;
+            };
+
+            function drawColorLine(name, street) {
+             
+                var overlay = L.layerGroup([]);
+                var streetName = name;
+                var streetTime = (street.time/60).toFixed();
+                var streetVelocity = street.velocity;
+                var origin = street.origin;
+                var destination = street.destination;
+
+                var joinedSections = [];
+                var latLngs = [];
+                //var streetVelocity = ;
+                $.each(street.sections, function(i, section){
+                    /*
+                    var velocity = section.velocity;
+                    var sectionTime = section.time;
+                    */
+                    joinedSections = joinedSections.concat(section.points);
+                });
+                 
+                // order by distOnRoute
+                joinedSections.sort(function(a, b) {
+                    return a.distOnRoute - b.distOnRoute;
+                });
+
+                $.each(joinedSections, function(i2, point){
+                    latLngs.push([point.latitude, point.longitude]);
+                });
+
+                var line = L.polyline(latLngs, {
+                    color: getColor(streetVelocity), 
+                    weight: 8
+                });
+
+                var message = "<h1>" + streetTime + " min.</h1><h4>Calle: " + name + "</h4><h5>Origen: " + origin + "</h5><h5>Destino: " + destination + "</h5>";
+                line.bindPopup(message, {
+                    //closeButton: false
+                });
+                overlay.addLayer(line);
+                 
+                console.log("Map updated with polyline");
+
+                return overlay;
+            };
+ 
+            // Add poits of interest to map
+            var POIsOverlay = L.layerGroup([]);
+            POIsOverlay.addTo(map);
+            mapControl.addOverlay(POIsOverlay, 'POIs');
+
+            function drawPOIs(data) {
+                 
+                POIsOverlay.clearLayers();
+                     
+                $.each(data, function(i, poi){
+                    var paramName = "Nombre: " + poi.name;
+                    //var paramOrigin = "Origen: " + poi.origin;
+                    //var paramDestination = "Destino: " + poi.destination;
+                    var paramZone = "Zona: " + poi.zone;
+                    //var paramStreet = "Calle: " + poi.street;
+                    var params = [];
+                    params.push(paramName);
+                    //params.push(paramOrigin);
+                    //params.push(paramDestination);
+                    params.push(paramZone);
+                    //params.push(paramStreet);
+                    params = params.join("<br />");
+ 
+                    var marker = L.marker([poi.latitude, poi.longitude], {
+                        icon: L.icon({
+                            iconUrl: 'http://icons.iconarchive.com/icons/custom-icon-design/mono-business/16/target-icon.png',
+                            iconSize: [16, 16]
+                        })
+                    }).bindPopup("<p>" + params + "</p>");
+                    POIsOverlay.addLayer(marker);
+                });
+
+                console.log("Map updated with POIs");
+            }
+
+            /**
+             * LOAD DATA
+             */
+            var groupPanelData = {};
+            var updateMap = function(data){
+                  
+                // remove currents layers from map
+                $.each(layers, function(i, l){
+                    map.removeLayer(l.layer);
+                    mapControl.removeLayer(l.layer);
+                });
+                layers = [];
+
+                // each zone
+                $.each(data, function(zone, streets) {
+                    // draw street
+                    $.each(streets, function(name, street) {
+                        var layer = drawLines(name, street);
+                        layers.push({
+                            name: name,
+                            layer: layer
+                        });
+                    });
+                });
+
+                // add layers to map and control
+                $.each(layers, function(i, l){
+                    l.layer.addTo(map);
+                    mapControl.addOverlay(l.layer, l.name);
+                });
+            };
+
+            // it is responsable of select the way to draw
+            var drawLines = function(name, street){
+                var drawType = $("#drawType option:selected").val();
+
+                switch(drawType) {
+                    case "1": 
+                        layer = drawColorLine(name, street);
+                        break;
+                    case "2": 
+                        layer = drawPolylineDecorator(name, street);
+                        break;
+                    case "3": 
+                        layer = drawHotline(name, street);
+                        break;
+                }
+
+                return layer;
+            };
+
+            var streetsData = {};
+            var getStreetData = function() {
+                var destination = $("#destination option:selected").val();
+                return streetsData[destination];
+            }
+
+            var poisData = {};
+            var getPoisData = function() {
+                var destination = $("#destination option:selected").val();
+                var origins = poisData[destination];
+                var pois = [];
+
+                $.each(origins, function (i, origin){
+                    $.each(origin, function (name, points){
+                        pois = pois.concat(points);
+                    });
+                });
+                     
+                return pois;
+            }
+
+            $.ajax({
+                url: "getStreetData",
+                success: function(data){
+                /*
+                //TODO: dar formato cn opciones de destino y zona
+                Norte     = data.Destination.Centro.Norte;
+                Poniente1 = data.Destination.Centro.Poniente1;
+                Poniente2 = data.Destination.Centro.Poniente2;
+                Oriente   = data.Destination.Centro.Oriente;
+                Sur       = data.Destination.Centro.Sur;
+
+                rawData = $.extend({}, Norte, Poniente1, Poniente2, Oriente, Sur);
+             */
+
+             // Add option to see all streets together
+             var all = {};
+             $.each(data.Destination, function(i,origin){
+                 $.each(origin, function(i,v){
+                     all = $.extend(all, v);
+                 });
+             });
+             streetsData = data.Destination;
+             streetsData = $.extend(data.Destination,{'Todos': {'Todos': all}});
+
+             // define destination options in select
+             $.each(streetsData, function(dest, v){
+                 $('#destination').append('<option value="' + dest + '" ' + (dest=="Todos"?"selected":"") + '>' + dest + '</option>');
+             });
+
+             $('#drawType').change(function(){
+                 updateMap(getStreetData());
+                 drawPOIs(getPoisData());
+             });
+             $('#destination').change(function(){
+                 updateMap(getStreetData());
+                 drawPOIs(getPoisData());
+             });
+
+             $.ajax({
+                 url: "getPOIData",
+                 success: function(data){
+                     poisData = data.Destination;
+                     drawPOIs(getPoisData());
+                 }
+             });
+
+             updateMap(getStreetData());
+             }
+         });
+     });
+     </script>
+ </body>
 </html>
