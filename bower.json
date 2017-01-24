@@ -1,0 +1,23 @@
+{
+  "name": "gpsonlineweb",
+  "homepage": "https://github.com/SmartcitySantiagoChile/onlineGPS",
+  "description": "project to develop different ideas",
+  "main": "",
+  "keywords": [
+    "tranport",
+    "avl",
+    "afc"
+  ],
+  "authors": [
+    "Felipe Hernández"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
