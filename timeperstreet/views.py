@@ -99,3 +99,58 @@ class StreetTimeMapHandler(View):
 
         return render(request, template, self.context)
 
+class GetStreetTableData(View):
+    '''This class requests to the database the street secction with travel time '''
+
+    def __init__(self):
+        """the contructor, context are the parameter given to the html template"""
+        self.context={}
+
+    def getColor(self, velocity):
+        """
+        grey
+        red
+        orange
+        yeloow
+        green
+        dark green
+        blue
+        """
+        return '#c4c4c4' if velocity <  0  else \
+               '#ff0000' if velocity <= 15 else \
+               '#ff9000' if velocity <= 19 else \
+               '#fff600' if velocity <= 21 else \
+               '#19ff00' if velocity <= 25 else \
+               '#0d8900' if velocity <= 30 else \
+               '#2133f2'
+
+    def get(self, request):
+        """ the {quantity} bus stops with most waiting time for a bus """
+        points = Tramos15Min.objects.values('eje', 'hito_origen', 'hito_destino', 'tiempo_viaje_ultimo_15_eje').distinct()
+
+        response = []
+        for point in points:
+            street = {}
+            street['axis'] = point['eje']
+            street['origin'] = point['hito_origen']
+            street['destination'] = point['hito_destino']
+            street['time'] = point['tiempo_viaje_ultimo_15_eje']
+            street['color'] = self.getColor(point['tiempo_viaje_ultimo_15_eje'])
+
+            response.append(street)
+
+        return JsonResponse(response, safe=False)
+
+
+class StreetTimeTableMapHandler(View):
+    '''This class manages the map where the street section are shown as a table'''
+
+    def __init__(self):
+        """the contructor, context are the parameter given to the html template"""
+        self.context={}
+
+    def get(self, request):
+        template = "timeTable.html"
+
+        return render(request, template, self.context)
+
