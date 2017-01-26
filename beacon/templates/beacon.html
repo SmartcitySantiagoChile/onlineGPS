@@ -45,9 +45,17 @@
                         </div>
                         <input type="button" id="update" value="Actualizar gráfico" class="btn btn-default" /> 
                     </div>
-                </div>
-            </div>
-            <div id="chartWrapper" class="col-md-9" style="height: 100%;min-height: 100%; margin-top:3%">
+	    	</div>
+	    	<div class="panel panel-default">
+			<div class= "panel-heading">
+				<h3 class="panel-title">Dispositivos disponibles</h3>
+			</div>
+			<div id="buttons" class="panel-body">
+			</div>
+		</div>
+	    </div>
+            <div id="chartWrapper" class="col-md-9" style="height: 100%;min-height: 100%; margin-top:3%; padding-left:0px; padding-right:0px">
+
     </div>
  
     <!-- Load d3.js and c3.js -->
@@ -55,6 +63,20 @@
     <script src="{% static "components/c3/c3.min.js" %}"></script>
     <script src="{% static "components/jquery/dist/jquery.min.js" %}"></script>
     <script src="{% static "components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
+    <script>
+	function setBackgroundColor(p){
+		if(p.data == true){
+			p.style.background = "#555555";
+			p.style.color = "white";
+			p.data = false;
+		}
+		else{
+			p.style.background = "#4CAF50";
+			p.style.color = "black";
+			p.data = true;
+		}
+	}
+    </script>
     <script>
         /*
          *  CHART
@@ -155,16 +177,17 @@
 		$.each(data, function(i, v){
 		    var deviceId = v.deviceId;
 		    var containerId = '<div id="container'+ deviceId + '" class="containerId" align="center">';
-		    var buttonId = '	<button type="button" class="btn btn-default collapsed" data-toggle="collapse" data-target="#id'+ deviceId +'" aria-expanded="false" style=" width:25%; align:center"> Device '+ deviceId + '</button>';
-		    var dataId = '	<div id="id' + deviceId + '" class="c3 collapse" aria-expanded="false" style="height: 0px; position: relative;min-height: '+percentage+'%"></div>';
+		    var buttonId = '	<button type="button" class="btn btn-default collapsed" data-toggle="collapse" data-target="#id'+ deviceId +'" aria-expanded="false" onclick=" setBackgroundColor(this)" style=" width:100%; align:center; background-color: #555555; color: white"> Device '+ deviceId + '</button>';
+		    var dataId = '	<div id="id' + deviceId + '" class="c3 collapse" aria-expanded="false" style="position: relative; height: '+ percentage+'%"></div>';
 		    var endContainerId = '</div>';
 		 
-		    var html = containerId + buttonId + dataId + endContainerId;
+		    var html = containerId + buttonId + endContainerId;
 
 
 		    // if tag does not exists
 		    if ($('#id'+deviceId).length == 0) {
-		    	$('#chartWrapper').append(html);
+		    	$('#buttons').append(html);
+			$('#chartWrapper').append(dataId);
 		    	}
 		    updateChart(deviceId);
                 });
