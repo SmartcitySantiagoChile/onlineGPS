@@ -276,6 +276,10 @@
 		}
 
 		var text = streetTime + ' min.';
+		if (streetTime <= 0) {
+                    text = "Falta info."
+		}
+
                 line.setText(text, {
                     center: true,
 		    below: true,
@@ -458,7 +462,11 @@
                 var decorator = L.polylineDecorator(line, {
                     patterns: patternsOpts                          
                 });
-                var message = "<h1>" + streetTime + " min.</h1><h4>Calle: " + streetName + "</h4><h5>Origen: " + origin + "</h5><h5>Destino: " + destination + "</h5>";
+		var text = streetTime + " min.";
+		if (streetTime <=0) {
+		    text = "Falta info.";
+		}
+                var message = "<h1>" + text + "</h1><h4>Calle: " + streetName + "</h4><h5>Origen: " + origin + "</h5><h5>Destino: " + destination + "</h5>";
                 decorator.bindPopup(message);
 
                 line.on('mouseout', function(e) {

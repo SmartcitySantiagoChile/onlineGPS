@@ -1,0 +1,352 @@
+[
+{
+	"origin": "EIMVespucioNorte",
+	"color": "#2133f2",
+	"destination": "AvdaDelParque",
+	"time": 8,
+	"axis": "Quilicura3"
+},
+{
+	"origin": "PlazaMaipu",
+	"color": "#2133f2",
+	"destination": "LasRejas",
+	"time": 20,
+	"axis": "Pajaritos1"
+},
+{
+	"origin": "Independencia",
+	"color": "#2133f2",
+	"destination": "EIMVespucioNorte",
+	"time": 8,
+	"axis": "Quilicura2"
+},
+{
+	"origin": "Pza.SanBernardo",
+	"color": "#2133f2",
+	"destination": "A.Vespucio",
+	"time": 19,
+	"axis": "GranAvenida4"
+},
+{
+	"origin": "Vespucio",
+	"color": "#2133f2",
+	"destination": "(M)Tobalaba",
+	"time": 12,
+	"axis": "Tobalaba3"
+},
+{
+	"origin": "Condell",
+	"color": "#2133f2",
+	"destination": "PlazaRenca",
+	"time": 9,
+	"axis": "Infante1"
+},
+{
+	"origin": "PlazaRenca",
+	"color": "#2133f2",
+	"destination": "EstacionMapoco",
+	"time": 21,
+	"axis": "Infante2"
+},
+{
+	"origin": "Radal",
+	"color": "#2133f2",
+	"destination": "Matucana/Compania",
+	"time": 11,
+	"axis": "CSur2"
+},
+{
+	"origin": "S.Valdovinos",
+	"color": "#2133f2",
+	"destination": "Matucana",
+	"time": 10,
+	"axis": "SanPablo2"
+},
+{
+	"origin": "H.Dipreca",
+	"color": "#2133f2",
+	"destination": "A.Vespucio",
+	"time": 14,
+	"axis": "Colon1"
+},
+{
+	"origin": "A.Vespucio",
+	"color": "#2133f2",
+	"destination": "PersaBioBio",
+	"time": 21,
+	"axis": "SantaRosa2"
+},
+{
+	"origin": "A.Vespucio",
+	"color": "#2133f2",
+	"destination": "V.Mackenna",
+	"time": 15,
+	"axis": "Bilbao2"
+},
+{
+	"origin": "ParqueCentralPte",
+	"color": "#2133f2",
+	"destination": "A.Vespucio",
+	"time": 16,
+	"axis": "CaminoMelipilla1"
+},
+{
+	"origin": "V.Mackenna",
+	"color": "#2133f2",
+	"destination": "(M)Tobalaba",
+	"time": 7,
+	"axis": "Bilbao3"
+},
+{
+	"origin": "Paradero48",
+	"color": "#2133f2",
+	"destination": "A.Vespucio",
+	"time": 13,
+	"axis": "SantaRosa1"
+},
+{
+	"origin": "Jacaranda",
+	"color": "#c4c4c4",
+	"destination": "A.Vespucio",
+	"time": -1,
+	"axis": "Recoleta1"
+},
+{
+	"origin": "V.Mackenna",
+	"color": "#c4c4c4",
+	"destination": "(M)SantaLucia",
+	"time": -1,
+	"axis": "Grecia3"
+},
+{
+	"origin": "Grecia",
+	"color": "#2133f2",
+	"destination": "Vespucio",
+	"time": 14,
+	"axis": "Tobalaba2"
+},
+{
+	"origin": "VicenteValdes",
+	"color": "#2133f2",
+	"destination": "(M)Irarazaval",
+	"time": 31,
+	"axis": "V.Mackenna2"
+},
+{
+	"origin": "SantaClara",
+	"color": "#2133f2",
+	"destination": "(M)Tobalaba",
+	"time": 9,
+	"axis": "TunelSC"
+},
+{
+	"origin": "Franklin",
+	"color": "#2133f2",
+	"destination": "Moneda",
+	"time": 16,
+	"axis": "GranAvenida3"
+},
+{
+	"origin": "ElPenon",
+	"color": "#2133f2",
+	"destination": "Vespucio",
+	"time": 19,
+	"axis": "LaFlorida1"
+},
+{
+	"origin": "A.Vespucio",
+	"color": "#2133f2",
+	"destination": "Franklin",
+	"time": 23,
+	"axis": "GranAvenida2"
+},
+{
+	"origin": "Pza.SanBernardo",
+	"color": "#c4c4c4",
+	"destination": "A.Vespucio",
+	"time": -1,
+	"axis": "GranAvenida1"
+},
+{
+	"origin": "A.Vespucio",
+	"color": "#2133f2",
+	"destination": "Departamental",
+	"time": 10,
+	"axis": "CaminoMelipilla2"
+},
+{
+	"origin": "Matucana",
+	"color": "#2133f2",
+	"destination": "(M)SantaAna",
+	"time": 7,
+	"axis": "JJPerez3"
+},
+{
+	"origin": "Dorsal",
+	"color": "#2133f2",
+	"destination": "E.Mapocho",
+	"time": 27,
+	"axis": "Independencia2"
+},
+{
+	"origin": "Vespucio",
+	"color": "#2133f2",
+	"destination": "Av.Grecia",
+	"time": 14,
+	"axis": "LaFlorida2"
+},
+{
+	"origin": "A.Vespucio",
+	"color": "#2133f2",
+	"destination": "V.Mackenna",
+	"time": 15,
+	"axis": "Grecia2"
+},
+{
+	"origin": "Dorsal",
+	"color": "#2133f2",
+	"destination": "MercadoCentral",
+	"time": 16,
+	"axis": "Recoleta3"
+},
+{
+	"origin": "DiagonalLasTorres",
+	"color": "#2133f2",
+	"destination": "A.Vespucio",
+	"time": 11,
+	"axis": "Grecia1"
+},
+{
+	"origin": "LaEstrella",
+	"color": "#2133f2",
+	"destination": "S.Valdovinos",
+	"time": 10,
+	"axis": "JJPerez1"
+},
+{
+	"origin": "LasRejas",
+	"color": "#2133f2",
+	"destination": "E.Central",
+	"time": 10,
+	"axis": "Pajaritos2"
+},
+{
+	"origin": "PersaBioBio",
+	"color": "#2133f2",
+	"destination": "(M)SantaLucia",
+	"time": 13,
+	"axis": "SantaRosa3"
+},
+{
+	"origin": "Pza.PuenteAlto",
+	"color": "#2133f2",
+	"destination": "VicenteValdes",
+	"time": 32,
+	"axis": "V.Mackenna1"
+},
+{
+	"origin": "A.Vespucio",
+	"color": "#2133f2",
+	"destination": "Dorsal",
+	"time": 10,
+	"axis": "Independencia1"
+},
+{
+	"origin": "Pza.Quilicura",
+	"color": "#2133f2",
+	"destination": "Independencia",
+	"time": 13,
+	"axis": "Quilicura1"
+},
+{
+	"origin": "Av.Grecia",
+	"color": "#2133f2",
+	"destination": "Av.NuevaProvidencia",
+	"time": 17,
+	"axis": "LaFlorida3"
+},
+{
+	"origin": "Departamental",
+	"color": "#2133f2",
+	"destination": "Grecia",
+	"time": 13,
+	"axis": "Tobalaba1"
+},
+{
+	"origin": "Matucana",
+	"color": "#2133f2",
+	"destination": "(M) Santa Ana",
+	"time": 8,
+	"axis": "SanPablo3"
+},
+{
+	"origin": "Tte.Cruz",
+	"color": "#2133f2",
+	"destination": "S.Valdovinos",
+	"time": 10,
+	"axis": "SanPablo1"
+},
+{
+	"origin": "A.Vespucio",
+	"color": "#2133f2",
+	"destination": "(M)Tobalaba",
+	"time": 4,
+	"axis": "Colon2"
+},
+{
+	"origin": "LaEstrella",
+	"color": "#2133f2",
+	"destination": "Radal",
+	"time": 11,
+	"axis": "CSur1"
+},
+{
+	"origin": "Matucana/Compania",
+	"color": "#2133f2",
+	"destination": "(M)SantaAna",
+	"time": 11,
+	"axis": "CSur3"
+},
+{
+	"origin": "S.Valdovinos",
+	"color": "#2133f2",
+	"destination": "Matucana",
+	"time": 6,
+	"axis": "JJPerez2"
+},
+{
+	"origin": "A.Vespucio",
+	"color": "#2133f2",
+	"destination": "V.Mackenna",
+	"time": 19,
+	"axis": "Irarrazaval2"
+},
+{
+	"origin": "Departamental",
+	"color": "#2133f2",
+	"destination": "(M)Moneda",
+	"time": 18,
+	"axis": "CaminoMelipilla3"
+},
+{
+	"origin": "Quillagua",
+	"color": "#2133f2",
+	"destination": "A.Vespucio",
+	"time": 11,
+	"axis": "Irarrazaval1"
+},
+{
+	"origin": "E.Central",
+	"color": "#2133f2",
+	"destination": "U.deChile",
+	"time": 9,
+	"axis": "Pajaritos3"
+},
+{
+	"origin": "A.Vespucio",
+	"color": "#2133f2",
+	"destination": "Dorsal",
+	"time": 5,
+	"axis": "Recoleta2"
+}
+]
