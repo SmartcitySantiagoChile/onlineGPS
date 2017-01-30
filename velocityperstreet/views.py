@@ -32,7 +32,7 @@ class GetStreetData(View):
                 street['destination'] = point.hito_destino
                 #street['zone'] = point.zona
                 #street['zoneGoal'] = point.destino
-                street['time'] = point.tiempo_viaje_ultimo_15_eje
+                street['time'] = point.tiempo_viaje_eje
                 street['velocity'] = point.velocidad_eje
                 street['sections'] = {}
                 response[dest][point.destino][point.zona][point.eje] = street
@@ -41,8 +41,8 @@ class GetStreetData(View):
                 section = {}
                 section['originStreet'] = point.calle_origen
                 section['destinationStreet'] = point.calle_destino
-                section['velocity'] = point.velocidad_ultimo_15_tramo
-                section['time'] = point.tiempo_viaje_ultimo_15_tramo
+                section['velocity'] = point.velocidad_tramo
+                section['time'] = point.tiempo_viaje_tramo
                 section['points'] = []
                 response[dest][point.destino][point.zona][point.eje]['sections'][point.tramo] = section
 

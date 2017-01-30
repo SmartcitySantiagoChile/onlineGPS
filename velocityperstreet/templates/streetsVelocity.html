@@ -353,7 +353,11 @@
                         var decorator = L.polylineDecorator(line, {
                             patterns: patternsOpts                          
                         });
-                        var message = "<h1>" + velocity + " Km/hr</h1><h4>Calle: " + name + "</h4><h5>Origen: " + origin + "</h5><h5>Destino: " + destination + "</h5>";
+			var text = velocity + " Km/hr";
+			if (velocity <=0) {
+                            text = 'Falta info.';
+			}
+                        var message = "<h1>" + text + "</h1><h4>Calle: " + name + "</h4><h5>Origen: " + origin + "</h5><h5>Destino: " + destination + "</h5>";
                         decorator.bindPopup(message);
                         line.bindPopup(message);
                         overlay.addLayer(decorator);
@@ -407,7 +411,11 @@
                             weight: 8
                         });
 
-                        var message = "<h1>" + velocity + " Km/hr</h1><h4>Calle: " + name + "</h4><h5>Origen: " + origin + "</h5><h5>Destino: " + destination + "</h5>";
+			var text = velocity + " Km/hr";
+			if (velocity <=0) {
+                            text = 'Falta info.';
+			}
+                        var message = "<h1>" + text + "</h1><h4>Calle: " + name + "</h4><h5>Origen: " + origin + "</h5><h5>Destino: " + destination + "</h5>";
                         line.bindPopup(message, {
                             //closeButton: false
                         });
