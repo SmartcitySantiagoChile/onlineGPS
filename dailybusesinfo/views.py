@@ -41,11 +41,14 @@ class GetBusesInfo(View):
 	for bus in buses:
             data.append([
                 bus.servicio,
-                bus.patente, 
+                bus.patente,
+                bus.t_inicial,
+                bus.t_final, 
                 bus.km_en_ruta, 
                 bus.km_fuera_ruta,
                 str(bus. t_en_ruta),
                 str(bus.t_fuera_ruta),
+                bus.velocidad_media,
                 bus.costo_en_ruta, 
                 bus.costo_fuera_ruta,
                 bus.no_detenciones,
