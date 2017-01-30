@@ -18,7 +18,7 @@ class Tramos15Min(models.Model):
     velocidad_tramo = models.FloatField(blank=True, null=True)
     tiempo_viaje_tramo = models.IntegerField(blank=True, null=True)
     tiempo_viaje_eje = models.IntegerField(blank=True, null=True)
-    velocidad_eje = models.IntegerField(blank=True, null=True)
+    velocidad_eje = models.FloatField(blank=True, null=True)
 
     class Meta:
         managed = False
