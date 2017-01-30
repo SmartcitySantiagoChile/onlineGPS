@@ -4,7 +4,7 @@ from django.views.generic import View
 
 
 # model
-from gpsmap.models import UltimosGps
+from gpsmap.models import UltimosGps, BusesDiarios
 
 # Create your views here.
 class MapHandler(View):
@@ -52,21 +52,26 @@ class GetMapPositionsByService(View):
 
 	response = []
 	for aPosition in positions:
-	    response.append({'patente': aPosition.patente, 
-                'servicioCodigo': aPosition.servicio, 
-                'servicio': aPosition.servicio_usuario, 
-                'distEnRuta': aPosition.dist_en_ruta, 
-                'distARuta': aPosition.dist_a_ruta, 
-                'velocidadInstantanea': aPosition.velocidad_instantanea, 
-                'velocidad2GPS': aPosition.velocidad_2gps, 
-                'velocidad4GPS': aPosition.velocidad_4gps, 
-                'operador': aPosition.operador, 
-                'latitud': aPosition.latitud, 
-                'longitud': aPosition.longitud, 
-                'tiempo': aPosition.tiempo,
-                'orientacion': aPosition.orientacion,
-                'tipo': aPosition.tipo,
-                'capacidad': aPosition.capacidad})
+		noStop = BusesDiarios.objects.filter(patente=aPosition.patente).order_by('-t_inicial').first()
+		noStopNum = "No Info."
+		if noStop is not None:
+			noStopNum = noStop.no_detenciones
+        	response.append({'patente': aPosition.patente, 
+                	'servicioCodigo': aPosition.servicio, 
+                	'servicio': aPosition.servicio_usuario, 
+                	'distEnRuta': aPosition.dist_en_ruta, 
+                	'distARuta': aPosition.dist_a_ruta, 
+                	'velocidadInstantanea': aPosition.velocidad_instantanea, 
+                	'velocidad2GPS': aPosition.velocidad_2gps, 
+                	'velocidad4GPS': aPosition.velocidad_4gps, 
+                	'operador': aPosition.operador, 
+                	'latitud': aPosition.latitud, 
+                	'longitud': aPosition.longitud, 
+                	'tiempo': aPosition.tiempo,
+                	'orientacion': aPosition.orientacion,
+                	'tipo': aPosition.tipo,
+                	'capacidad': aPosition.capacidad,
+                	'noParo': noStopNum})
 	return JsonResponse(response, safe=False)
 
 class ServiceHandler(View):

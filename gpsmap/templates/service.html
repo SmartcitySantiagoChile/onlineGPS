@@ -154,6 +154,7 @@
                             }
                             var marker = L.marker(latLng, {
                                 icon: busIcon,
+				                title: "Patente: " + v.patente + "\nNo paro: "+ v.noParo ,
                             });
 
                             var paramPatente = "Patente: " + v.patente;
@@ -169,6 +170,7 @@
                             var paramOrientacion = "Orientación: " + v.orientacion;
                             var paramTipo = "Tipo: " + v.tipo;
                             var paramCapacidad = "Capacidad: " + v.capacidad;
+                            var paramNoParo = "Cantidad no detenciones: " + v.noParo;
                             var params = [];
                             params.push(paramPatente);
                             params.push(paramServicio);
@@ -183,6 +185,7 @@
                             params.push(paramOrientacion);
                             params.push(paramTipo);
                             params.push(paramCapacidad);
+                            params.push(paramNoParo);
                             params = params.join("<br />");
 
                             marker.bindPopup("<p>" + params + "</p>");
