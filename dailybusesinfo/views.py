@@ -24,6 +24,16 @@ class GetBusesInfo(View):
     def __init__(self):
 	self.context={}
 
+    def isKnownRoute(self, code):
+        if code == 0:
+            return "Si"
+        return "No"
+
+    def isStationary(self, code):
+        if code == 0:
+            return "No"
+        return "Si"
+
     def get(self, request):
         buses = BusesDiarios.objects.order_by('servicio', 'patente')
 
@@ -33,9 +43,14 @@ class GetBusesInfo(View):
                 bus.servicio,
                 bus.patente, 
                 bus.km_en_ruta, 
-                bus.km_fuera_ruta, 
+                bus.km_fuera_ruta,
+                str(bus. t_en_ruta),
+                str(bus.t_fuera_ruta),
                 bus.costo_en_ruta, 
-                bus.costo_fuera_ruta, ])
+                bus.costo_fuera_ruta,
+                bus.no_detenciones,
+                self.isKnownRoute(bus.existe_ruta),
+                self.isStationary(bus.tipo_expedicion), ])
 
 	response = dict( [("data" , data)] )
 
