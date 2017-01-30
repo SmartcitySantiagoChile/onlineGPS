@@ -163,6 +163,10 @@
 	    });
 	}
 
+	var clearButtons = function(){
+		$('<div id="buttons" class="panel-body"></div>').replaceAll("#buttons");
+	}
+
         var getDevices = function() {
 	    console.log('getting devices info...');
             var start = $('#start').val();
@@ -176,19 +180,14 @@
 		var percentage = 100/data.length;
 		$.each(data, function(i, v){
 		    var deviceId = v.deviceId;
-		    var containerId = '<div id="container'+ deviceId + '" class="containerId" align="center">';
 		    var buttonId = '	<button type="button" class="btn btn-default collapsed" data-toggle="collapse" data-target="#id'+ deviceId +'" aria-expanded="false" onclick=" setBackgroundColor(this)" style=" width:100%; align:center; background-color: #555555; color: white"> Device '+ deviceId + '</button>';
 		    var dataId = '	<div id="id' + deviceId + '" class="c3 collapse" aria-expanded="false" style="position: relative; height: '+ percentage+'%"></div>';
-		    var endContainerId = '</div>';
-		 
-		    var html = containerId + buttonId + endContainerId;
-
-
+	
 		    // if tag does not exists
 		    if ($('#id'+deviceId).length == 0) {
-		    	$('#buttons').append(html);
 			$('#chartWrapper').append(dataId);
-		    	}
+			} 
+		    $('#buttons').append(buttonId);
 		    updateChart(deviceId);
                 });
 	    })
@@ -197,8 +196,8 @@
         /*
          *  ADD BEHAVIOR TO BUTTON
          */
+	$('#update').click(clearButtons);
         $('#update').click(getDevices);
-
 	//reference: http://stackoverflow.com/questions/10632346/how-to-format-a-date-in-mm-dd-yyyy-hhmmss-format-in-javascript
 	Number.prototype.padLeft = function(base,chr){
             var  len = (String(base || 10).length - String(this).length)+1;
