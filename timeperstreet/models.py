@@ -2,6 +2,8 @@ from django.db import models
 
 # Create your models here.
 class Tramos15Min(models.Model):
+    eje_id = models.CharField(max_length=200, blank=True, null=True)
+    secuencia_eje_macro = models.IntegerField(blank=True, null=True)
     tramo = models.CharField(max_length=200)
     eje = models.CharField(max_length=200)
     hito_origen = models.CharField(max_length=200, blank=True, null=True)
@@ -40,3 +42,24 @@ class OrigenYDestinoEjes15Min(models.Model):
         managed = False
         db_table = 'origen_y_destino_ejes_15_min'
 
+class VelocidadGlobal(models.Model):                                                                                  
+    id = models.IntegerField(primary_key=True)
+    velocidad_sin_corredor = models.FloatField(blank=True, null=True)
+    velocidad_con_corredor = models.FloatField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'velocidad_global'
+
+class EjesMacro(models.Model):
+    eje_id = models.CharField(primary_key=True, max_length=200)
+    hito_origen = models.CharField(max_length=200, blank=True, null=True)
+    hito_destino = models.CharField(max_length=200, blank=True, null=True)
+    zona = models.CharField(max_length=200, blank=True, null=True)
+    destino = models.CharField(max_length=200, blank=True, null=True)
+    tiempo_viaje = models.IntegerField(blank=True, null=True)
+    velocidad = models.FloatField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'ejes_macro'

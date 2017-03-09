@@ -40,16 +40,28 @@
         <!-- Add your site or application content here -->
         <div class="container-fluid">
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-offset-1 col-md-10">
 		    <h1>Tiempos por eje</h1>
 		    <hr />
-
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-offset-1 col-md-10">
-                    <table id="datatable" class="table table-striped table-bordered dataTable no-footer"></table>
+                    <table id="datatable" class="table table-striped table-bordered dataTable no-footer table-condensed"></table>
                 </div>
+            </div>
+	    <div id='detail'>
+            <div class="row">
+                <div class="col-md-offset-1 col-md-10">
+		    <h3>Detalle</h3>
+		    <hr />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-offset-1 col-md-10">
+                    <table id="datatableChild" class="table table-striped table-bordered dataTable no-footer table-condensed"></table>
+                </div>
+            </div>
             </div>
         </div>
         
@@ -71,7 +83,7 @@
 
         <script>
         $(document).ready(function() { 
-	    $.get('./getStreetTableData', function(dataset) {
+	    $.get('./getMacroStreetTableData', function(dataset) {
                 
                 var dt = $('#datatable').DataTable({
                     dom: 'Bfrtip',
@@ -97,9 +109,48 @@
 		    ],
 		    order: [[1, 'asc']],
 		});
+		
+		var dtChild = $('#datatableChild').DataTable({
+                    dom: 'Bfrtip',
+		    buttons: [],
+		    language: {
+		        url: '//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json',
+			emptyTable: "Calculando valores para el eje..."
+		    },
+		    data: [],
+		    searching: false, 
+		    paging: false,
+		    info: false,
+		    columns: [
+		        { title: 'Eje',           data: 'axis',        searchable: true},
+		        { title: 'Origen',        data: 'origin',      searchable: true},
+		        { title: 'Destino',       data: 'destination', searchable: true},
+		        { title: 'Tiempo (min.)', data: 'time',        searchable: true,
+			  render: $.fn.dataTable.render.number('.', ',', 0)
+			},
+		        { title: 'Color', data: 'color',   searchable: false},
+		    ],
+		    order: [[0, 'asc']],
+		});
 
+                $('#datatable tbody').on( 'click', 'tr', function () {
+	            dtChild.clear();
+                    if ( $(this).hasClass('success') ) {
+		        $(this).removeClass('success');
+			$('#detail').hide();
+                    } else {
+		        dt.$('tr.success').removeClass('success');
+                        $(this).addClass('success');
+
+			var axis = dt.row(this).data().axis;
+			$.get('./getStreetTableData', {'axisId': axis}, function(childs) {
+		            dtChild.rows.add(childs).draw();
+		        });
+			$('#detail').show();
+                    }
+                });
             });
-        });
-        </script>
-    </body>
-</html>
+	});
+	</script>
+	</body>
+	</html>

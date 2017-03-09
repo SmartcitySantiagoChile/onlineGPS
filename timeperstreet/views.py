@@ -3,7 +3,7 @@ from django.views.generic import View
 from django.http import JsonResponse
 from django.db import connection
 
-from timeperstreet.models import Tramos15Min, OrigenYDestinoEjes15Min
+from timeperstreet.models import Tramos15Min, OrigenYDestinoEjes15Min, EjesMacro, VelocidadGlobal
 
 # Create your views here.
 class GetStreetData(View):
@@ -99,6 +99,26 @@ class StreetTimeMapHandler(View):
 
         return render(request, template, self.context)
 
+
+def getColor(velocity):
+    """
+    grey
+    red
+    orange
+    yeloow
+    green
+    dark green
+    blue
+    """
+    return '#c4c4c4' if velocity <  0  else \
+           '#ff0000' if velocity <= 15 else \
+           '#ff9000' if velocity <= 19 else \
+           '#fff600' if velocity <= 21 else \
+           '#19ff00' if velocity <= 25 else \
+           '#0d8900' if velocity <= 30 else \
+           '#2133f2'
+
+
 class GetStreetTableData(View):
     '''This class requests to the database the street secction with travel time '''
 
@@ -106,27 +126,14 @@ class GetStreetTableData(View):
         """the contructor, context are the parameter given to the html template"""
         self.context={}
 
-    def getColor(self, velocity):
-        """
-        grey
-        red
-        orange
-        yeloow
-        green
-        dark green
-        blue
-        """
-        return '#c4c4c4' if velocity <  0  else \
-               '#ff0000' if velocity <= 15 else \
-               '#ff9000' if velocity <= 19 else \
-               '#fff600' if velocity <= 21 else \
-               '#19ff00' if velocity <= 25 else \
-               '#0d8900' if velocity <= 30 else \
-               '#2133f2'
-
     def get(self, request):
-        """ the {quantity} bus stops with most waiting time for a bus """
-        points = Tramos15Min.objects.values('eje', 'hito_origen', 'hito_destino', 'tiempo_viaje_eje', 'velocidad_eje').distinct()
+        ''' '''
+        axisId = request.GET.get('axisId')
+        if axisId:
+            points = Tramos15Min.objects.filter(eje_id=axisId)
+        else:
+            points = Tramos15Min.objects.all()
+        points = points.values('eje', 'hito_origen', 'hito_destino', 'tiempo_viaje_eje', 'velocidad_eje').distinct()
 
         response = []
         for point in points:
@@ -134,11 +141,49 @@ class GetStreetTableData(View):
             street['axis'] = point['eje']
             street['origin'] = point['hito_origen']
             street['destination'] = point['hito_destino']
-            street['time'] = int(point['tiempo_viaje_eje']/60)
-            street['color'] = self.getColor(point['velocidad_eje'])
+            street['time'] = 'Sin datos' if point['tiempo_viaje_eje'] == -1 else int(point['tiempo_viaje_eje']/60)
+            street['color'] = getColor(point['velocidad_eje'])
 
             response.append(street)
 
+        return JsonResponse(response, safe=False)
+
+class GetMacroStreetTableData(View):
+    ''' This class requests to the database the macro streets data '''
+
+    def __init__(self):
+        """the contructor, context are the parameter given to the html template"""
+        self.context={}
+
+    def get(self, request):
+        """ the {quantity} bus stops with most waiting time for a bus """
+        
+        response = []
+        for point in EjesMacro.objects.all():
+            street = {}
+            street['axis'] = point.eje_id
+            street['origin'] = point.hito_origen
+            street['destination'] = point.hito_destino
+            street['time'] = 'Sin datos' if point.tiempo_viaje == -1 else point.tiempo_viaje
+            street['color'] = getColor(point.velocidad)
+
+            response.append(street)
+
+        return JsonResponse(response, safe=False)
+
+class GetGlobalVelocity(View):
+    ''' Get the global velocity of the transport system. It separates in two metrics: corridor and not corridor '''
+
+    def __init__(self):
+        """the contructor, context are the parameter given to the html template"""
+        self.context={}
+
+    def get(self, request):
+        ''' '''
+        avgVelocities = VelocidadGlobal.objects.first()
+
+        response = {'corridor': avgVelocities['velocidad_con_corredor'], 
+                    'notCorridor': avgVelocities['velocidad_sin_corredor']}
         return JsonResponse(response, safe=False)
 
 
