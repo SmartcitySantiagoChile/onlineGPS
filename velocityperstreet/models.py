@@ -2,6 +2,8 @@ from django.db import models
 
 # Create your models here.
 class Tramos15Min(models.Model):
+    eje_id = models.CharField(max_length=200, blank=True, null=True)
+    secuencia_eje_macro = models.IntegerField(blank=True, null=True)
     tramo = models.CharField(max_length=200)
     eje = models.CharField(max_length=200)
     hito_origen = models.CharField(max_length=200, blank=True, null=True)

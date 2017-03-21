@@ -35,7 +35,21 @@ class GetMapPositions(View):
 
 	response = []
 	for aPosition in positions:
-	    response.append({'patente': aPosition.patente, 'servicio': aPosition.servicio, 'fuera_de_ruta': aPosition.fuera_de_ruta, 'latitud': aPosition.latitud, 'longitud': aPosition.longitud, 'tiempo': aPosition.tiempo})
+	    response.append({'patente': aPosition.patente, 
+                             'servicioCodigo': aPosition.servicio, 
+                	     'servicio': aPosition.servicio_usuario, 
+                	     'distEnRuta': aPosition.dist_en_ruta, 
+                	     'distARuta': aPosition.dist_a_ruta, 
+                	     'velocidadInstantanea': aPosition.velocidad_instantanea, 
+                	     'velocidad2GPS': aPosition.velocidad_2gps, 
+                	     'velocidad4GPS': aPosition.velocidad_4gps, 
+                	     'operador': aPosition.operador, 
+                	     'latitud': aPosition.latitud, 
+                	     'longitud': aPosition.longitud, 
+                	     'tiempo': aPosition.tiempo,
+                	     'orientacion': aPosition.orientacion,
+                	     'tipo': aPosition.tipo,
+                	     'capacidad': aPosition.capacidad})
 	    #response.append({'patente': aPosition.patente, 'servicio': aPosition.servicio, 'latitud': aPosition.latitud, 'longitud': aPosition.longitud, 'tiempo': aPosition.tiempo})
 	return JsonResponse(response, safe=False)
 
