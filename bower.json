@@ -21,12 +21,18 @@
     "tests"
   ],
   "dependencies": {
-    "Leaflet.TextPath": "git://github.com/felipinbombin/Leaflet.TextPath.git#^1.1.1"
+    "Leaflet.TextPath": "git://github.com/felipinbombin/Leaflet.TextPath.git#^1.1.1",
     "datatables.net": "^2.1.1",
     "datatables.net-bs": "^2.1.1",
     "datatables.net-buttons": "^1.2.4",
     "datatables.net-buttons-bs": "^1.2.4",
     "jszip": "Stuk/jszip#^3.1.3",
-    "pdfmake": "^0.1.24"
+    "pdfmake": "^0.1.24",
+    "bootstrap": "^3.3.7",
+    "leaflet-polylinedecorator": "^1.1.0",
+    "normalize-css": "^5.0.0",
+    "leaflet": "Leaflet#^1.0.3",
+    "bootstrap-toggle": "^2.2.2",
+    "Leaflet.hotline": "git://github.com/iosphere/Leaflet.hotline.git#^0.4.0"
   }
 }
