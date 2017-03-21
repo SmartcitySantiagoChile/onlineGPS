@@ -45,31 +45,32 @@ class TimePerStreetTestCase(TestCase):
     def setUp(self):
         """ save initial data on database """
         self.dirPath = os.path.dirname(os.path.realpath(__file__))
-
         with open(os.path.join(self.dirPath, 'testStreetData.csv')) as f:
             # skip first line
             f.readline()
             reader = csv.reader(f)
             for row in reader:
                 _, created = Tramos15Min.objects.get_or_create(
-                                 tramo        =row[1],
-                                 eje          =row[2],
-                                 hito_origen  =row[3],
-                                 hito_destino =row[4],
-                                 zona         =row[5],
-                                 destino      =row[6],
-                                 calle_origen =row[7],
-                                 calle_destino=row[8],
-                                 dist_en_ruta =row[9],
-                                 latitud      =row[10],
-                                 longitud     =row[11],
-                                 x            =row[12],
-                                 y            =row[13],
-                                 velocidad_tramo    =row[14],
-                                 tiempo_viaje_tramo =row[15],
-                                 tiempo_viaje_eje   =row[16],
-                                 velocidad_eje      =row[17],
-                                 super_lento        =row[18]
+                                 eje_id       =row[1],
+                                 secuencia_eje_macro=row[2],
+                                 tramo        =row[3],
+                                 eje          =row[4],
+                                 hito_origen  =row[5],
+                                 hito_destino =row[6],
+                                 zona         =row[7],
+                                 destino      =row[8],
+                                 calle_origen =row[9],
+                                 calle_destino=row[10],
+                                 dist_en_ruta =row[11],
+                                 latitud      =row[12],
+                                 longitud     =row[13],
+                                 x            =row[14],
+                                 y            =row[15],
+                                 velocidad_tramo    =row[16],
+                                 tiempo_viaje_tramo =row[17],
+                                 tiempo_viaje_eje   =row[18],
+                                 velocidad_eje      =row[19],
+                                 super_lento        =row[20]
                                  )
         with open(os.path.join(self.dirPath,'testPOIData.csv')) as f:
             # skip first line
