@@ -237,32 +237,9 @@
 	    return [e.latitud, e.longitud];
 	});
 	
-    	var line = {
-	    "type": "Feature",
-	    "properties": {},
-	    "geometry": {
-	        "type": "LineString",
-	        "coordinates": turfPoints
-	    }
-	};
-
-	var pt1 = {
-	    "type": "Feature",
-	    "properties": {},
-	    "geometry": {
-                "type": "Point",
-	        "coordinates": turfStopLoc1
-	    }
-	};
-        var pt2 = {
-	    "type": "Feature",
-	    "properties": {},
-	    "geometry": {
-                "type": "Point",
-	        "coordinates": turfStopLoc2
-	    }
-	};
-
+    	var line = turf.lineString(turfPoints);
+	var pt1 = turf.point(turfStopLoc1);
+	var pt2 = turf.point(turfStopLoc2);
 	var routePart = turf.lineSlice(pt1, pt2, line).geometry.coordinates;
 
         var serviceWithoutDirection = route.substring(0, route.length - 1);
