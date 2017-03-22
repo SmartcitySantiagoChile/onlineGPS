@@ -69,6 +69,8 @@
         <script src="{% static "components/leaflet/dist/leaflet.js" %}"></script>    
         <script src="{% static "js/Leaflet.GTFS.js" %}"></script>
         <script src="{% static "components/leaflet-polylinedecorator/leaflet.polylineDecorator.js" %}"></script>
+        <script src="{% static "components/leaflet-polylinedecorator/leaflet.polylineDecorator.js" %}"></script>
+	<script src="https://npmcdn.com/@turf/turf/turf.min.js"></script>
 
         <script>
             $(document).ready(function() {
@@ -135,6 +137,7 @@
                                     DTPM.drawStops(stepLayers[id], [firstStop, lastStop]);
 
                                     var routes = DTPM.getRoutes([serviceWithDirection]);
+
                                     var section = DTPM.drawPartOfRoute(stepLayers[id], serviceWithDirection, firstStop, lastStop);
 
                                     var serviceWithoutDir = serviceWithDirection.substring(0, serviceWithDirection.length - 1);

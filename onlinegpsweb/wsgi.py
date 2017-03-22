@@ -11,7 +11,7 @@ import os
 import sys
 
 # add the path to the folder
-sys.path.append('/home/gpsonline/onlinegpsweb')
+sys.path.append('/home/server/Documentos/gpsonline/onlinegpsweb')
 
 from django.core.wsgi import get_wsgi_application
 
