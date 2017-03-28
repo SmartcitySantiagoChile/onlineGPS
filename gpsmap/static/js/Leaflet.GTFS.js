@@ -289,12 +289,13 @@
         stopLayer.clearLayers();
             
         var stopIcon = this.getBusStopIcon();
+        var metroIcon = this.getMetroIcon();
         var stopData = this.data.busStop;
         $.each(stops, function(i, code){
             var stop = stopData[code];
             var latLng = L.latLng(stop.latitude, stop.longitude);
             var marker = L.marker(latLng, {
-                icon: stopIcon, 
+                icon: stop.type=='busstop'?stopIcon:metroIcon, 
                 zIndexOffset: -1000 // send stops below other layers
                 });
             marker.bindPopup("<p>" + code + " - " + stop.name + "<br />" + i + "<br />" + stop.services + "</p>");
@@ -398,6 +399,21 @@
         
         return icon;        
     }, 
+
+    getMetroIcon: function() {
+        var icon = L.icon({
+            iconUrl: this.dataUrl + 'img/metro.png',
+            //shadowUrl: '',
+            
+            iconSize:     [50, 41],   // size of the icon
+            //shadowSize:   [50, 64], // size of the shadow
+            iconAnchor:   [25, 20],   // point of the icon which will correspond to marker's location
+            //shadowAnchor: [26, 15], // the same for the shadow
+            popupAnchor:  [0, -41],    // point from which the popup should open relative to the iconAnchor
+        });
+        
+        return icon;        
+    }, 
     
     /** 
      * get hexadecimal color based on operator id
@@ -431,6 +447,26 @@
                 break;
             case 7:
                 color = '#00D9A3';
+                break;
+	    // subway line 1
+	    case 8:
+                color = '#CD0424';
+                break;
+	    // subway line 2
+	    case 9:
+                color = '#DF6D0C';
+                break;
+	    // subway line 4
+	    case 10:
+                color = '#12275C';
+                break;
+	    // subway line 4a
+	    case 11:
+                color = '#285EA6';
+                break;
+	    // subway line 5
+	    case 12:
+                color = '#018464';
                 break;
             default:
                 color = '#ffffff';
