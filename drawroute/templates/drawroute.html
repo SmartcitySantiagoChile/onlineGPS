@@ -27,7 +27,7 @@
             height: 100%;
         }
         input[type = "text"] {
-            max-width: 70px
+            max-width: 27%
         }
         </style>
     </head>
@@ -45,6 +45,17 @@
 		        <div class="panel-body">
 			    <input id="toggle" type="checkbox" data-toggle="toggle" data-on="´Código DTPM" data-off="Código usuario" data-size="large" data-width="100%">
 			</div>
+		    </div>
+		    <div class="alert alert-info" role="alert">
+			<strong>Dibujar trayecto en bus:</strong>
+			<p>ingresar código de parada de subida, código de parada de bajada y el servicio junto con su sentido (I o R). Ejemplo: (PA453,PA434,506I)</p>
+			<strong>Dibujar trayecto en metro:</strong>
+			<p>ingresar el nombre de la estación de subida, estación de bajada y línea de metro que abordó junto con su sentido (I o R). Ejemplo: (LasRejas,SantaLucía,L1R)</p>
+			<p>Al utilizar esta opción se debe tener en cuenta lo siguiente:</p>
+			<ul>
+			    <li>El nombre de la estación de metro debe ser escrito en CamelCase, sin espacios y respetando los acéntos. Ejemplo: Santa lucía ==&#8250; "SantaLucía"</li>
+			    <li>Si el viaje realiza un cambio de línea se debe dibujar dos pasos, siendo el punto intermedio la estación de combinación. Ejemplo: (EstaciónCentral, LosHéroes, L1I) y (LosHéroes, VespucioNorte, L2R)</li>
+		        </ul>
 		    </div>
                     <div class="panel panel-default">
                         <div class="panel-heading">
