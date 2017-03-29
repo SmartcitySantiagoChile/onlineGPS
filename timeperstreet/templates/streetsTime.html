@@ -396,7 +396,7 @@
 		//setLineText(pl, streetTime, streetVelocity)
 		//pl.addTo(map);
 
-                console.log("Map updated with hotlines");
+                //console.log("Map updated with hotlines");
 
                 return line;
             };
@@ -466,14 +466,14 @@
                 decorator.bindPopup(message);
 
                 line.on('mouseout', function(e) {
-                    console.log("mouseout");
+                    //console.log("mouseout");
                     line.closePopup();
                 });
                 
 		setLineText(line, streetTime, streetVelocity)
 
                 line.on('mouseover', function(e) {
-                    console.log("mouseover");
+                    //console.log("mouseover");
                     line.openPopup();
                 });
 
@@ -498,7 +498,7 @@
                 //*/
                 //********************************************************/
                      
-                console.log("Map updated with polyline decorator");
+                //console.log("Map updated with polyline decorator");
 
                 return overlay;
             };
@@ -546,7 +546,7 @@
 
                 overlay.addLayer(line);
                  
-                console.log("Map updated with polyline");
+                //console.log("Map updated with polyline");
 
                 return overlay;
             };
@@ -583,7 +583,7 @@
                     POIsOverlay.addLayer(marker);
                 });
 
-                console.log("Map updated with POIs");
+                //console.log("Map updated with POIs");
             }
 
             /**
@@ -657,56 +657,65 @@
                 return pois;
             }
 
-            $.ajax({
-                url: "getStreetData",
-                success: function(data){
-                /*
-                //TODO: dar formato cn opciones de destino y zona
-                Norte     = data.Destination.Centro.Norte;
-                Poniente1 = data.Destination.Centro.Poniente1;
-                Poniente2 = data.Destination.Centro.Poniente2;
-                Oriente   = data.Destination.Centro.Oriente;
-                Sur       = data.Destination.Centro.Sur;
+	    function fillMap() {
+                $.ajax({
+                    url: "getStreetData",
+                    success: function(data){
+                        /*
+                        //TODO: dar formato cn opciones de destino y zona
+                        Norte     = data.Destination.Centro.Norte;
+                        Poniente1 = data.Destination.Centro.Poniente1;
+                        Poniente2 = data.Destination.Centro.Poniente2;
+                        Oriente   = data.Destination.Centro.Oriente;
+                        Sur       = data.Destination.Centro.Sur;
 
-                rawData = $.extend({}, Norte, Poniente1, Poniente2, Oriente, Sur);
-             */
+                        rawData = $.extend({}, Norte, Poniente1, Poniente2, Oriente, Sur);
+                        */
 
-             // Add option to see all streets together
-             var all = {};
-             $.each(data.Destination, function(i,origin){
-                 $.each(origin, function(i,v){
-                     all = $.extend(all, v);
-                 });
-             });
-             streetsData = data.Destination;
-             streetsData = $.extend(data.Destination,{'Todos': {'Todos': all}});
+                        // Add option to see all streets together
+                        var all = {};
+                        $.each(data.Destination, function(i,origin){
+                            $.each(origin, function(i,v){
+                                all = $.extend(all, v);
+                           });
+                        });
+                        streetsData = data.Destination;
+                        streetsData = $.extend(data.Destination,{'Todos': {'Todos': all}});
 
-             // define destination options in select
-             $.each(streetsData, function(dest, v){
-                 $('#destination').append('<option value="' + dest + '" ' + (dest=="Todos"?"selected":"") + '>' + dest + '</option>');
-             });
+                        // define destination options in select
+                        $.each(streetsData, function(dest, v){
+                            $('#destination').append('<option value="' + dest + '" ' + (dest=="Todos"?"selected":"") + '>' + dest + '</option>');
+                        });
 
-             $('#drawType').change(function(){
-                 updateMap(getStreetData());
-                 drawPOIs(getPoisData());
-             });
-             $('#destination').change(function(){
-                 updateMap(getStreetData());
-                 drawPOIs(getPoisData());
-             });
+                        $('#drawType').change(function(){
+                            updateMap(getStreetData());
+                            drawPOIs(getPoisData());
+                        });
+                        $('#destination').change(function(){
+                            updateMap(getStreetData());
+                            drawPOIs(getPoisData());
+                        });
 
-             $.ajax({
-                 url: "getPOIData",
-                 success: function(data){
-                     poisData = data.Destination;
-                     drawPOIs(getPoisData());
-                 }
-             });
+                        $.ajax({
+                            url: "getPOIData",
+                            success: function(data){
+                                poisData = data.Destination;
+                                drawPOIs(getPoisData());
+                            }
+                        });
+   
+                        updateMap(getStreetData());
+                    }
+                });
 
-             updateMap(getStreetData());
-             }
+    		setTimeout(function(){
+                    fillMap();
+	            console.log('updated map data');
+                }, 1000*60*1);
+            }
+
+	    fillMap();
          });
-     });
      </script>
  </body>
 </html>
