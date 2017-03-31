@@ -22,12 +22,14 @@
 
         <link rel="stylesheet" href="{% static "components/bootstrap-toggle/css/bootstrap-toggle.css" %}" />
 
+        <link rel="stylesheet" href="{% static "components/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css" %}" />
+
         <style>
         html, body, .container-fluid {
             height: 100%;
         }
         input[type = "text"] {
-            max-width: 27%
+            max-width: 24%
         }
         </style>
     </head>
@@ -81,6 +83,7 @@
         <script src="{% static "js/Leaflet.GTFS.js" %}"></script>
         <script src="{% static "components/leaflet-polylinedecorator/leaflet.polylineDecorator.js" %}"></script>
         <script src="{% static "components/leaflet-polylinedecorator/leaflet.polylineDecorator.js" %}"></script>
+        <script src="{% static "components/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js" %}"></script>
 	<script src="https://npmcdn.com/@turf/turf/turf.min.js"></script>
 
         <script>
@@ -99,83 +102,101 @@
                  */
                 DTPM.loadData(function() {
 
-                        $.getJSON("{% static "data/dict.json" %}", function(dict) {
-                                /*
-                                function to add a new step
-                                */
-                                addNewStep = function() {
-                                    var container = $('#steps');
-                                    var newId = container.children().length + 1;
+                    $.getJSON("{% static "data/dict.json" %}", function(dict) {
+                        /*
+                        function to add a new step
+                        */
+                        addNewStep = function() {
+                            var container = $('#steps');
+                            var newId = container.children().length + 1;
 
-                                    var row = '<div class="form-inline" data-id="' + newId + '"><input value="PA453" name="firstStop" type="text" class="form-control input-sm" placeholder="PA33"><input value="PA434" name="lastStop" type="text" class="form-control input-sm" placeholder="PI433"><input value="506I" name="service" type="text" class="form-control input-sm" placeholder="506"><button name="seeStep" class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button><button name="removeStep" class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></div>';
+				            var row = '<div class="form-inline" data-id="' + newId + '"><input value="PA453" name="firstStop" type="text" class="form-control input-sm" placeholder="PA33"><input value="PA434" name="lastStop" type="text" class="form-control input-sm" placeholder="PI433"><input value="506I" name="service" type="text" class="form-control input-sm" placeholder="506"><button name="seeStep" class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button><button name="removeStep" class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button><button name="colorStep" class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></button></div>';
 
-                                    container.append(row);
-                                    $('button[name = "removeStep"]').click(removeStep);
-                                    $('button[name = "seeStep"]').click(seeStep);
+                            container.append(row);
+                            $('button[name = "removeStep"]').click(removeStep);
+                            $('button[name = "seeStep"]').click(seeStep);
+                            $('button[name = "colorStep"]').colorpicker({
+                                format: 'rgb'
+			                }).on('changeColor', function(e) {
+								var color = e.color.toString('rgba');
+					            var stepId = $(e.target).parent('.form-inline').data('id');
+					            stepLayers[stepId].eachLayer(function(layer){
+					                if (layer instanceof L.Marker) {
+                                        console.log('bus stop');
+		         	                } else if (layer instanceof L.Polyline) {
+                                        console.log('polyline');
+										layer.setStyle({color: color});
+		         	                } else if (layer instanceof L.PolylineDecorator) {
+									    console.log('polylinedecorator');
+										layer.setStyle({color: color});
+										layer.options.patterns[0].symbol.options.pathOptions.color=color;
+         				            }
+					                //console.log(layer);
+					            });
+                                $(e.target).css('color', e.color.toString('rgba'));
+			                });
 
-                                    stepLayers[newId] = L.layerGroup([]);
-                                    map.addLayer(stepLayers[newId]);
+                            stepLayers[newId] = L.layerGroup([]);
+                            map.addLayer(stepLayers[newId]);
 
-                                    console.log('row added');
-                                }
+                            console.log('row added');
+                        }
 
-                                removeStep = function() {
-                                    var parent = $(this).parent('.form-inline');
-                                    var id = parent.data('id');
+                        removeStep = function() {
+                            var parent = $(this).parent('.form-inline');
+                            var id = parent.data('id');
 
-                                    map.removeLayer(stepLayers[id]);
-                                    delete stepLayers[id];
+                            map.removeLayer(stepLayers[id]);
+                            delete stepLayers[id];
 
-                                    parent.remove();
+                            parent.remove();
 
-                                    console.log('row removed');
-                                }
+                            console.log('row removed');
+                        }
 
-                                seeStep = function() {
-                                    var parent = $(this).parent('.form-inline');
-                                    var id = parent.data('id');
-                                    var firstStop = parent.children('input[name="firstStop"]').val();
-                                    var lastStop = parent.children('input[name="lastStop"]').val();
-                                    var serviceWithDirection = parent.children('input[name="service"]').val();
+                        seeStep = function() {
+                            var parent = $(this).parent('.form-inline');
+                            var id = parent.data('id');
+                            var firstStop = parent.children('input[name="firstStop"]').val();
+                            var lastStop = parent.children('input[name="lastStop"]').val();
+				    
+                            var serviceWithDirection = parent.children('input[name="service"]').val();
 
-				    if ($("#toggle").prop('checked')) {
-                                        firstStop = dict[firstStop];
-                                        lastStop = dict[lastStop];
-				    }
+                  	        if ($("#toggle").prop('checked')) {
+                                firstStop = dict[firstStop];
+                                lastStop = dict[lastStop];
+				            }
 
-                                    console.log('step ' + id + ': ' + firstStop + ' -> ' + serviceWithDirection + ' -> ' + lastStop);
+                            console.log('step ' + id + ': ' + firstStop + ' -> ' + serviceWithDirection + ' -> ' + lastStop);
 
-                                    DTPM.drawStops(stepLayers[id], [firstStop, lastStop]);
+                            DTPM.drawStops(stepLayers[id], [firstStop, lastStop]);
+                            var routes = DTPM.getRoutes([serviceWithDirection]);
+                            var section = DTPM.drawPartOfRoute(stepLayers[id], serviceWithDirection, firstStop, lastStop);
+                            var serviceWithoutDir = serviceWithDirection.substring(0, serviceWithDirection.length - 1);
+                            // addd arrows
+                            stepLayers[id].addLayer(L.polylineDecorator(section, {
+                                patterns: [{
+                                    offset: 0,
+                                    endOffset: 0,
+                                    repeat: '40',
+                                    symbol: L.Symbol.arrowHead({
+                                        pixelSize: 10,
+                                        polygon: true,
+                                        pathOptions: {
+                                            fillOpacity: 1,
+                                            color: DTPM.getRouteColor(serviceWithoutDir),
+                                            stroke: true
+                                        }
+                                    })
+                                }]
+                            }));
 
-                                    var routes = DTPM.getRoutes([serviceWithDirection]);
+                            console.log('row drawn');
+                        }
 
-                                    var section = DTPM.drawPartOfRoute(stepLayers[id], serviceWithDirection, firstStop, lastStop);
-
-                                    var serviceWithoutDir = serviceWithDirection.substring(0, serviceWithDirection.length - 1);
-                                    // addd arrows
-                                    stepLayers[id].addLayer(L.polylineDecorator(section, {
-                                        patterns: [{
-                                            offset: 0,
-                                            endOffset: 0,
-                                            repeat: '40',
-                                            symbol: L.Symbol.arrowHead({
-                                                pixelSize: 10,
-                                                polygon: true,
-                                                pathOptions: {
-                                                    fillOpacity: 1,
-                                                    color: DTPM.getRouteColor(serviceWithoutDir),
-                                                    stroke: true
-                                                }
-                                            })
-                                        }]
-                                    }));
-
-                                    console.log('row drawn');
-                                }
-
-                                $('#addStep').click(addNewStep);
-                            });
-                    }, "{% static ""%}");
+                        $('#addStep').click(addNewStep);
+                    });
+                }, "{% static ""%}");
             });        
 	</script>
     </body>

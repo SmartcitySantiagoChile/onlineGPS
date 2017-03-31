@@ -33,6 +33,7 @@
     "normalize-css": "^5.0.0",
     "leaflet": "Leaflet#^1.0.3",
     "bootstrap-toggle": "^2.2.2",
-    "Leaflet.hotline": "git://github.com/iosphere/Leaflet.hotline.git#^0.4.0"
+    "Leaflet.hotline": "git://github.com/iosphere/Leaflet.hotline.git#^0.4.0",
+    "bootstrap-colorpicker": "^2.5.1"
   }
 }
