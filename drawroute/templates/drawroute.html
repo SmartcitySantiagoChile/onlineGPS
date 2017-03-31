@@ -84,7 +84,7 @@
         <script src="{% static "components/leaflet-polylinedecorator/leaflet.polylineDecorator.js" %}"></script>
         <script src="{% static "components/leaflet-polylinedecorator/leaflet.polylineDecorator.js" %}"></script>
         <script src="{% static "components/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js" %}"></script>
-	<script src="https://npmcdn.com/@turf/turf/turf.min.js"></script>
+	    <script src="https://npmcdn.com/@turf/turf/turf.min.js"></script>
 
         <script>
             $(document).ready(function() {
@@ -133,7 +133,7 @@
          				            }
 					                //console.log(layer);
 					            });
-                                $(e.target).css('color', e.color.toString('rgba'));
+                                $(e.target).css('color', color);
 			                });
 
                             stepLayers[newId] = L.layerGroup([]);
