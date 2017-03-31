@@ -19,6 +19,8 @@
         <!-- bootstrap -->
         <link rel="stylesheet" href="{% static "components/bootstrap/dist/css/bootstrap.min.css" %}"/>
         <link rel="stylesheet" href="{% static "components/bootstrap/dist/css/bootstrap-theme.min.css" %}" />
+
+		<link rel="stylesheet" href="{% static "components/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css" %}" /> 
         <style>
         html, body, .container-fluid {
              height: 100%;
@@ -49,6 +51,9 @@
                                 <input type="radio" name="direction1" id="optionsRadios2" value="I">
                                 IDA
                             </label>
+							<button id="lineColor1" name="lineColor" class="btn btn-default btn-sm" >
+							    <span class="glyphicon glyphicon-tint" aria-hidden="true"></span>
+							</button>
                             <hr />
                             <input type="button" id="seeBuses1" value="Ver servicio" class="btn btn-default" /> 
                             <hr />
@@ -78,6 +83,9 @@
                                 <input type="radio" name="direction2" id="optionsRadios2" value="I">
                                 IDA
                             </label>
+							<button id="lineColor2" name="lineColor" class="btn btn-default btn-sm" >
+							    <span class="glyphicon glyphicon-tint" aria-hidden="true"></span>
+							</button>
                             <hr />
                             <input type="button" id="seeBuses2" value="Ver servicio" class="btn btn-default" /> 
                             <hr />
@@ -104,6 +112,7 @@
         <script src="{% static "components/leaflet/dist/leaflet.js" %}"></script>
         <script src="{% static "js/Leaflet.GTFS.js" %}"></script>
         <script src="{% static "components/leaflet-polylinedecorator/leaflet.polylineDecorator.js" %}"></script>
+		<script src="{% static "components/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js" %}"></script>
 
         <script>
             $(document).ready(function() { 
@@ -129,6 +138,30 @@
                 };
                 L.control.layers({}, overlays).addTo(map);
 
+				function attachColorSelector(tagId, layer) {
+                    $('#' + tagId).colorpicker({
+	    			    format: 'rgb'
+		    	    }).on('changeColor', function(e) {
+			    		var color = e.color.toString('rgba');
+				    	layer.eachLayer(function(layer){
+    			        	if (layer instanceof L.Marker) {
+    	                        console.log('bus stop');
+	                 	    } else if (layer instanceof L.Polyline) {
+    	    			    	console.log('polyline'); 
+	    	    			    layer.setStyle({color: color});
+		    	    		} else if (layer instanceof L.PolylineDecorator) {
+			    	   	 	    console.log('polylinedecorator');
+				        	    layer.setStyle({color: color});
+					        	layer.options.patterns[0].symbol.options.pathOptions.color=color;
+        					} 
+	        				//console.log(layer); 
+		    		    });
+			    		$(e.target).css('color', color);
+				    });
+				}
+				attachColorSelector('lineColor1', routeLayer1);
+				attachColorSelector('lineColor2', routeLayer2);
+
                 function drawRoute(service, direction, busStopsLayer, routeLayer) {
                     // draw bus stops related to service 
                     busStopsLayer = DTPM.drawStopsForService(busStopsLayer, service, direction);
@@ -144,10 +177,10 @@
 
                     var routeWithArrows = L.polylineDecorator(line, {
                         patterns: [
-			    {offset: 0, 
-			     endOffset: 0, 
-			     repeat: '40', 
-			     symbol: L.Symbol.arrowHead(
+            			    {offset: 0, 
+			                 endOffset: 0, 
+              			     repeat: '40', 
+			                 symbol: L.Symbol.arrowHead(
                                 {pixelSize: 10, 
                                  polygon: true, 
                                  pathOptions: {
@@ -156,7 +189,7 @@
                                      stroke: true}
                                 })
                             }
-			    ]
+			            ]
                     });
                     var popupMessage = "<h4>" + service + direction + "</h4>";
                     routeWithArrows.bindPopup(popupMessage);
