@@ -31,4 +31,5 @@ urlpatterns = [
     url(r'^drawRoute/', include('drawroute.urls')),
     url(r'^beacon/', include('beacon.urls')),
     url(r'^dailybusesinfo/', include('dailybusesinfo.urls')),
+    url(r'^alerts/', include('alerts.urls')),
 ]

@@ -1,0 +1,94 @@
+<!doctype html>
+{% load static %}
+<html class="no-js" lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Tiempos estimados</title>
+        <meta name="description" content="Servicios en vivo">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+        <!-- Place favicon.ico in the root directory -->
+
+        <link rel="stylesheet" href="{% static "components/normalize-css/normalize.css" %}">
+        
+        <!-- leaflet -->
+        <link rel="stylesheet" href="{% static "components/leaflet/dist/leaflet.css" %}">
+        
+        <!-- bootstrap -->
+        <link rel="stylesheet" href="{% static "components/bootstrap/dist/css/bootstrap.min.css" %}"/>
+        <link rel="stylesheet" href="{% static "components/bootstrap/dist/css/bootstrap-theme.min.css" %}" />
+
+    <!-- datatable -->
+        <link rel="stylesheet" href="{% static "components/datatables.net-bs/css/dataTables.bootstrap.min.css" %}" />
+    </head>
+    <body>
+        <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <!-- Add your site or application content here -->
+        <div class="container-fluid">
+            <HR>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Información de alertas de transantiago</h3>
+                </div>
+                <div class="panel-body">
+                    <table id="datatable" class="table table-striped table-bordered dataTable no-footer table-condensed" width="100%">
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <script src="{% static "components/jquery/dist/jquery.min.js" %}"></script>
+        <script src="{% static "components/bootstrap/dist/js/bootstrap.min.js" %}"></script>    
+        <script src="{% static "components/datatables.net/js/jquery.dataTables.min.js" %}"></script>    
+        <script src="{% static "components/datatables.net-bs/js/dataTables.bootstrap.min.js" %}"></script>    
+        <script src="//cdn.datatables.net/plug-ins/1.10.15/dataRender/datetime.js"></script>    
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment-with-locales.min.js"></script>    
+        
+        <script>
+            
+$(document).ready(function() {
+moment.updateLocale('es');
+function loadTable() {
+  $.get('./getData', function(dataset) {
+
+    var dt = $('#datatable').DataTable({
+      dom: 'frBtip',
+        buttons: [
+        //{extend: 'copy', text: 'Copiar'}, 
+        {extend: 'csv', filename: 'tramo_seg_km'}, 
+        {extend: 'excel', filename: 'tramo_seg_km'},
+        //{extend: 'print', text: 'Imprimir'},
+      ],
+      pageLength: 20,
+      data: dataset,
+      language: {
+        url: '//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json'
+      },
+        columns: [
+        { title: 'Servicio',            data: 'servicio',        searchable: true},
+        { title: 'Objeto',              data: 'objeto',          searchable: true},
+        { title: 'Tipo',                data: 'tipo',            searchable: true},
+        { title: 'Operador',            data: 'operador',        searchable: true},
+        { title: 'Patente',             data: 'patente',         searchable: true},
+        { title: 'Fecha de generación', data: 'fechageneracion', searchable: true},
+        { title: 'Origen', data: 'origen', searchable: true},
+        { title: 'Descripción', data: 'descripcion', searchable: true},
+        { title: 'Sentido', data: 'sentido', searchable: true},
+        { title: 'Texto alerta', data: 'textoalerta', searchable: true},
+        { title: 'Id', data: 'id', searchable: true},
+        { title: 'Fecha reg alerta', data: 'fecharegalerta', searchable: true},
+      ],
+        order: [[5, 'desc']],
+    });
+  });
+};
+loadTable();
+});
+        </script>
+    </body>
+</html>

@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'drawroute',
     'beacon',
     'dailybusesinfo',
+    'alerts'
 ]
 
 MIDDLEWARE = [

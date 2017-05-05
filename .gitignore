@@ -91,3 +91,5 @@ ENV/
 
 # ignore static files
 static/
+
+alerts/auth.json
