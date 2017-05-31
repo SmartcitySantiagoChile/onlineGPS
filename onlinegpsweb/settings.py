@@ -25,7 +25,7 @@ SECRET_KEY = '#3s%)tjtk#gg@y@a#1tq^%d)5@&br5h=vxddv0=1eql&98s-%l'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [u'200.9.100.91']
+ALLOWED_HOSTS = [u'200.9.100.91',u'127.0.0.1']
 
 APPEND_SLASH = True
 
@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'drawroute',
     'beacon',
     'dailybusesinfo',
+    'speedbyroute',
     'alerts'
 ]
 
