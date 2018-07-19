@@ -70,18 +70,34 @@ function loadTable() {
         url: '//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json'
       },
         columns: [
+        { title: 'Id',                  data: 'id',              searchable: true},
         { title: 'Servicio',            data: 'servicio',        searchable: true},
+        { title: 'Sentido',             data: 'sentido',         searchable: true},
         { title: 'Objeto',              data: 'objeto',          searchable: true},
-        { title: 'Tipo',                data: 'tipo',            searchable: true},
         { title: 'Operador',            data: 'operador',        searchable: true},
+        { title: 'Tipo',                data: 'tipo',            searchable: true},
         { title: 'Patente',             data: 'patente',         searchable: true},
-        { title: 'Fecha de generación', data: 'fechageneracion', searchable: true},
+        { title: 'Fecha de generación', data: 'fechageneracion', searchable: true,
+          render: function (data, type) {
+                    var date = new Date(data);
+                    if (type === "sort") {
+                      return date.getTime();
+                    }
+                    return date.toLocaleString();
+                  }
+        },
         { title: 'Origen', data: 'origen', searchable: true},
         { title: 'Descripción', data: 'descripcion', searchable: true},
-        { title: 'Sentido', data: 'sentido', searchable: true},
         { title: 'Texto alerta', data: 'textoalerta', searchable: true},
-        { title: 'Id', data: 'id', searchable: true},
-        { title: 'Fecha reg alerta', data: 'fecharegalerta', searchable: true},
+        { title: 'Fecha reg alerta', data: 'fecharegalerta', searchable: true,
+          render: function (data, type) {
+                    var date = new Date(data);
+                    if (type === "sort") {
+                      return date.getTime();
+                    }
+                    return date.toLocaleString();
+                  }
+        }
       ],
         order: [[5, 'desc']],
     });
