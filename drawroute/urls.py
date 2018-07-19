@@ -3,5 +3,5 @@ from . import views
 from drawroute.views import MapHandler
 
 urlpatterns = [
-	url(r'^show$', MapHandler.as_view()),
+	url(r'^show/$', MapHandler.as_view()),
 ]
