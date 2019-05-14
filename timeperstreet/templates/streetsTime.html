@@ -323,6 +323,8 @@
                 var div = L.DomUtil.create('div', 'info legend'),
                 grades = [0, 15, 19, 21, 25, 30],
                 labels = [];
+		    
+                div.innerHTML += "<p>Velocidad (Km/hr)<p>";
 
                 // loop through our density intervals and generate a label with a colored square for each interval
                 for (var i = 0; i < grades.length; i++) {
